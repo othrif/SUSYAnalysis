@@ -1,0 +1,1092 @@
+// To DO:
+// add flags: luminosity, SS or OS, ratio, signal, signal grid
+// revisit ratio and uncertainty
+/*****************************************************************************/
+/*                                                                           */
+/* File Name        : mcfit.cxx                                              */
+/* Description      : perform fit to data to extract scale factors           */
+/* Author           : Othmane Rifki			                                 */
+/* Email            : othmane.rifki@cern.ch			                         */
+/*                                                                           */
+/* Description      :                                                        */
+/*                                                                           */
+/***** C 2016 ****************************************************************/
+
+// These are standard C++ header files.
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <list>
+#include <vector>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+// These are ROOT header files.
+#include "TMath.h"
+#include "Rtypes.h"
+#include "TCanvas.h"
+#include "TColor.h"
+#include "TFile.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TH1F.h"
+#include "TH1D.h"
+#include "THStack.h"
+#include "TRandom.h"
+#include "TGraphErrors.h"
+#include "TLegend.h"
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TLine.h"
+#include "TObjArray.h"
+#include "TMinuit.h"
+#include "RooStats/NumberCountingUtils.h"
+
+//here are the project-specific files
+#include "Plotter/plotter.h"
+#include "Utils/AtlasUtils.h"
+#include "Utils/AtlasStyle.h"
+
+using namespace std;
+
+//-----------------------------------------------------------------------------
+// TO DO: integrate in code
+//string FS = "SS3L";
+//string FS = "OS";
+char* path;
+char* folder;
+bool test_me = false;
+bool reduced = false;
+
+distrSignature* my_set;
+bool MultRegion=true;
+//bool MCstat = false;
+bool MCstat = true;
+
+double my_FR_lf_e = 1.;
+double my_FR_lf_mu = 1.;
+double my_FR_hf_e = 1.;
+double my_FR_hf_mu = 1.;
+double my_charge_flip = 1.;
+double my_FR_lf_e_err = 0.;
+double my_FR_lf_mu_err = 0.;
+double my_FR_hf_e_err = 0.;
+double my_FR_hf_mu_err = 0.;
+double my_charge_flip_err = 0.;
+
+void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
+
+//-----------------------------------------------------------------------------
+
+void getData_All(distrAll& set, string tag, const char* syst_tag) {
+  
+  getData_All(set, "" + tag, "", -1, syst_tag);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void getData_All(distrAll& set, string tag, const char* signal_name, Int_t ind, const char* syst_tag) {
+
+  std::cout << "reading data SS ..." << std::endl;  
+  getData_Signature(set.SS3L, "SS3L" + tag, "", -1, syst_tag);
+  /*std::cout << "reading data OS ..." << std::endl;  
+	getData_Signature(set.OS, "OS" + tag, "", -1, syst_tag);
+	std::cout << "reading data SS ..." << std::endl;  
+	getData_Signature(set.SS, "SS" + tag, "", -1, syst_tag);
+	std::cout << "reading data 3L ..." << std::endl;  
+	getData_Signature(set.L3, "3L" + tag, "", -1, syst_tag);*/
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void getData_Signature(distrSignature& set, string tag, const char* signal_name, Int_t ind, const char* syst_tag) {
+
+  getData_Region(set.CR0b, "CR0b_" + tag, "", -1, syst_tag);
+  getData_Region(set.CR1b, "CR1b_" + tag, "", -1, syst_tag);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void getData_Region(distrRegion& set, string tag, const char* signal_name, Int_t ind, const char* syst_tag) {
+
+  getData_Set(set.fs_elel, "ee_" + tag, "", -1, syst_tag);
+  getData_Set(set.fs_elmu, "em_" + tag, "", -1, syst_tag);
+  getData_Set(set.fs_mumu, "mm_" + tag, "", -1, syst_tag);
+  getData_Set(set.fs_comb, "comb_" + tag, "", -1, syst_tag);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void getData_Set(distrSet& set, string tag, const char* signal_name, Int_t ind, const char* syst_tag){
+
+  set.int_lumi = lumi;
+  set.syst_tag = syst_tag;
+  char temp_file[512];
+  char temp_tag[256];
+  TFile *f_data;
+
+  const string files[N_FITS] = {"data", "real",  "chmisid", "fake_HF_e", "fake_LF_e", "fake_HF_m", "fake_LF_m"};
+
+  std::sprintf(temp_file, "%s/merged.%s.root", path, folder);
+  f_data = new TFile(temp_file, "READ");
+
+  // Default
+  set.FR_lf_e = 1.;
+  set.FR_hf_e = 1.;
+  set.FR_lf_mu = 1.;
+  set.FR_hf_mu = 1.;
+  set.charge_flip = 1.;
+
+  for (int i = 0; i < N_FITS; i++) { // TO DO: note that the histograms are initilized with N_DataMC 
+	// NJETS
+	std::sprintf(temp_tag, "NJETS_%s_%s", files[i].c_str(),tag.data());
+	std::cout << temp_tag << std::endl;
+	set.NJETS[i] =(TH1D*) f_data->Get(temp_tag);
+	std::sprintf(temp_tag, "NJETS_%s", tag.data());
+	set.NJETS[i]->SetName(temp_tag);
+	set.NJETS[i]->SetDirectory(gROOT);
+
+	  // NBJETS
+	  std::sprintf(temp_tag, "NBJETS_%s_%s", files[i].c_str(),tag.data());
+	  set.NBJETS[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "NBJETS_%s", tag.data());
+	  set.NBJETS[i]->SetName(temp_tag);
+	  set.NBJETS[i]->SetDirectory(gROOT);
+
+	  // mu2_pt
+	  std::sprintf(temp_tag, "mu2_pt_%s_%s", files[i].c_str(),tag.data());
+	  set.mu2_pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "mu2_pt_%s", tag.data());
+	  set.mu2_pt[i]->SetName(temp_tag);
+	  set.mu2_pt[i]->SetDirectory(gROOT);
+
+	  // el2_pt
+	  std::sprintf(temp_tag, "el2_pt_%s_%s", files[i].c_str(),tag.data());
+	  set.el2_pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "el2_pt_%s", tag.data());
+	  set.el2_pt[i]->SetName(temp_tag);
+	  set.el2_pt[i]->SetDirectory(gROOT);
+
+	  // MET
+	  std::sprintf(temp_tag, "MET_%s_%s", files[i].c_str(),tag.data());
+	  set.MET[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "MET_%s", tag.data());
+	  set.MET[i]->SetName(temp_tag);
+	  set.MET[i]->SetDirectory(gROOT);
+
+	  // Meff
+	  std::sprintf(temp_tag, "Meff_%s_%s", files[i].c_str(),tag.data());
+	  set.Meff[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "Meff_%s", tag.data());
+	  set.Meff[i]->SetName(temp_tag);
+	  set.Meff[i]->SetDirectory(gROOT);
+
+	/*	if(!test_me){
+	  // pt_jet1
+	  std::sprintf(temp_tag, "pt_jet1_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_jet1[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_jet1_%s", tag.data());
+	  set.pt_jet1[i]->SetName(temp_tag);
+	  set.pt_jet1[i]->SetDirectory(gROOT);
+
+	  // pt_jet2
+	  std::sprintf(temp_tag, "pt_jet2_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_jet2[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_jet2_%s", tag.data());
+	  set.pt_jet2[i]->SetName(temp_tag);
+	  set.pt_jet2[i]->SetDirectory(gROOT);
+
+	  // pt_jet3
+	  std::sprintf(temp_tag, "pt_jet3_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_jet3[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_jet3_%s", tag.data());
+	  set.pt_jet3[i]->SetName(temp_tag);
+	  set.pt_jet3[i]->SetDirectory(gROOT);
+
+	  if(reduced){
+	  // pt_jet4
+	  std::sprintf(temp_tag, "pt_jet4_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_jet4[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_jet4_%s", tag.data());
+	  set.pt_jet4[i]->SetName(temp_tag);
+	  set.pt_jet4[i]->SetDirectory(gROOT);
+
+	  // pt_jet5
+	  std::sprintf(temp_tag, "pt_jet5_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_jet5[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_jet5_%s", tag.data());
+	  set.pt_jet5[i]->SetName(temp_tag);
+	  set.pt_jet5[i]->SetDirectory(gROOT);
+	  }*/
+	  /*
+	  // pt_bjet1
+	  std::sprintf(temp_tag, "pt_bjet1_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_bjet1[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_bjet1_%s", tag.data());
+	  set.pt_bjet1[i]->SetName(temp_tag);
+	  set.pt_bjet1[i]->SetDirectory(gROOT);
+
+	  // pt_bjet2
+	  std::sprintf(temp_tag, "pt_bjet2_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_bjet2[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_bjet2_%s", tag.data());
+	  set.pt_bjet2[i]->SetName(temp_tag);
+	  set.pt_bjet2[i]->SetDirectory(gROOT);
+
+	  // pt_bjet3
+	  std::sprintf(temp_tag, "pt_bjet3_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_bjet3[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_bjet3_%s", tag.data());
+	  set.pt_bjet3[i]->SetName(temp_tag);
+	  set.pt_bjet3[i]->SetDirectory(gROOT);
+
+	  if(reduced){	  // pt_bjet4
+	  std::sprintf(temp_tag, "pt_bjet4_%s_%s", files[i].c_str(),tag.data());
+	  set.pt_bjet4[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "pt_bjet4_%s", tag.data());
+	  set.pt_bjet4[i]->SetName(temp_tag);
+	  set.pt_bjet4[i]->SetDirectory(gROOT);
+	  }
+	  // mu1_pt
+	  std::sprintf(temp_tag, "mu1_pt_%s_%s", files[i].c_str(),tag.data());
+	  set.mu1_pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "mu1_pt_%s", tag.data());
+	  set.mu1_pt[i]->SetName(temp_tag);
+	  set.mu1_pt[i]->SetDirectory(gROOT);
+	  */
+	  /*
+	  // mu3_pt
+	  std::sprintf(temp_tag, "mu3_pt_%s_%s", files[i].c_str(),tag.data());
+	  set.mu3_pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "mu3_pt_%s", tag.data());
+	  set.mu3_pt[i]->SetName(temp_tag);
+	  set.mu3_pt[i]->SetDirectory(gROOT);
+
+	  // mu_eta
+	  std::sprintf(temp_tag, "mu_eta_%s_%s", files[i].c_str(),tag.data());
+	  set.mu_eta[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "mu_eta_%s", tag.data());
+	  set.mu_eta[i]->SetName(temp_tag);
+	  set.mu_eta[i]->SetDirectory(gROOT);
+
+	  // el1_pt
+	  std::sprintf(temp_tag, "el1_pt_%s_%s", files[i].c_str(),tag.data());
+	  set.el1_pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "el1_pt_%s", tag.data());
+	  set.el1_pt[i]->SetName(temp_tag);
+	  set.el1_pt[i]->SetDirectory(gROOT);
+	  */
+	  /*
+	  // el3_pt
+	  std::sprintf(temp_tag, "el3_pt_%s_%s", files[i].c_str(),tag.data());
+	  set.el3_pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "el3_pt_%s", tag.data());
+	  set.el3_pt[i]->SetName(temp_tag);
+	  set.el3_pt[i]->SetDirectory(gROOT);
+
+	  // el_eta
+	  std::sprintf(temp_tag, "el_eta_%s_%s", files[i].c_str(),tag.data());
+	  set.el_eta[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "el_eta_%s", tag.data());
+	  set.el_eta[i]->SetName(temp_tag);
+	  set.el_eta[i]->SetDirectory(gROOT);
+	  */
+	  /*
+	  // HT
+	  std::sprintf(temp_tag, "HT_%s_%s", files[i].c_str(),tag.data());
+	  set.HT[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "HT_%s", tag.data());
+	  set.HT[i]->SetName(temp_tag);
+	  set.HT[i]->SetDirectory(gROOT);
+	  */
+	  /*
+	  // mT
+	  std::sprintf(temp_tag, "mT_%s_%s", files[i].c_str(),tag.data());
+	  set.mT[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "mT_%s", tag.data());
+	  set.mT[i]->SetName(temp_tag);
+	  set.mT[i]->SetDirectory(gROOT);
+
+	  // mT_min
+	  std::sprintf(temp_tag, "mT_min_%s_%s", files[i].c_str(),tag.data());
+	  set.mT_min[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "mT_min_%s", tag.data());
+	  set.mT_min[i]->SetName(temp_tag);
+	  set.mT_min[i]->SetDirectory(gROOT);
+	  if(reduced){
+	  // MZ
+	  std::sprintf(temp_tag, "MZ_%s_%s", files[i].c_str(),tag.data());
+	  set.MZ[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "MZ_%s", tag.data());
+	  set.MZ[i]->SetName(temp_tag);
+	  set.MZ[i]->SetDirectory(gROOT);
+
+	  // Mlll
+	  std::sprintf(temp_tag, "Mlll_%s_%s", files[i].c_str(),tag.data());
+	  set.Mlll[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "Mlll_%s", tag.data());
+	  set.Mlll[i]->SetName(temp_tag);
+	  set.Mlll[i]->SetDirectory(gROOT);
+	  }
+	  // Mee
+	  std::sprintf(temp_tag, "Mee_%s_%s", files[i].c_str(),tag.data());
+	  set.Mee[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "Mee_%s", tag.data());
+	  set.Mee[i]->SetName(temp_tag);
+	  set.Mee[i]->SetDirectory(gROOT);
+
+	  // Mmumu
+	  std::sprintf(temp_tag, "Mmumu_%s_%s", files[i].c_str(),tag.data());
+	  set.Mmumu[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "Mmumu_%s", tag.data());
+	  set.Mmumu[i]->SetName(temp_tag);
+	  set.Mmumu[i]->SetDirectory(gROOT);
+
+	  // LEPPt
+	  std::sprintf(temp_tag, "LEPPt_%s_%s", files[i].c_str(),tag.data());
+	  set.LEPPt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "LEPPt_%s", tag.data());
+	  set.LEPPt[i]->SetName(temp_tag);
+	  set.LEPPt[i]->SetDirectory(gROOT);
+
+	  // LEP1Pt
+	  std::sprintf(temp_tag, "LEP1Pt_%s_%s", files[i].c_str(),tag.data());
+	  set.LEP1Pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "LEP1Pt_%s", tag.data());
+	  set.LEP1Pt[i]->SetName(temp_tag);
+	  set.LEP1Pt[i]->SetDirectory(gROOT);
+
+	  // LEP2Pt
+	  std::sprintf(temp_tag, "LEP2Pt_%s_%s", files[i].c_str(),tag.data());
+	  set.LEP2Pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "LEP2Pt_%s", tag.data());
+	  set.LEP2Pt[i]->SetName(temp_tag);
+	  set.LEP2Pt[i]->SetDirectory(gROOT);
+
+	  // LEP3Pt
+	  std::sprintf(temp_tag, "LEP3Pt_%s_%s", files[i].c_str(),tag.data());
+	  set.LEP3Pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "LEP3Pt_%s", tag.data());
+	  set.LEP3Pt[i]->SetName(temp_tag);
+	  set.LEP3Pt[i]->SetDirectory(gROOT);
+
+	  // LEPChargeSum
+	  std::sprintf(temp_tag, "LEPChargeSum_%s_%s", files[i].c_str(),tag.data());
+	  set.LEPChargeSum[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "LEPChargeSum_%s", tag.data());
+	  set.LEPChargeSum[i]->SetName(temp_tag);
+	  set.LEPChargeSum[i]->SetDirectory(gROOT);
+	  if(reduced){
+	  // lep_softest_pt
+	  std::sprintf(temp_tag, "lep_softest_pt_%s_%s", files[i].c_str(),tag.data());
+	  set.lep_softest_pt[i] =(TH1D*) f_data->Get(temp_tag);
+	  std::sprintf(temp_tag, "lep_softest_pt_%s", tag.data());
+	  set.lep_softest_pt[i]->SetName(temp_tag);
+	  set.lep_softest_pt[i]->SetDirectory(gROOT);
+	  }
+	  }*/
+  }
+  
+  
+  f_data->Close("R");
+  
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Scale luminsoity
+//-----------------------------------------------------------------------------
+
+void scaleLumi_All(distrAll& set, Double_t sf) {
+
+  scaleLumi_Signature(set.SS3L, sf);
+  /*  scaleLumi_Signature(set.SS, sf);
+	  scaleLumi_Signature(set.L3, sf);*/
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void scaleLumi_Signature(distrSignature& set, Double_t sf) {
+
+  scaleLumi_Region(set.CR0b, sf);
+  scaleLumi_Region(set.CR1b, sf);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void scaleLumi_Region(distrRegion& set, Double_t sf) {
+  
+  scaleLumi_Set(set.fs_elel, sf);
+  scaleLumi_Set(set.fs_elmu, sf);
+  scaleLumi_Set(set.fs_mumu, sf);
+  scaleLumi_Set(set.fs_comb, sf);
+    
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void scaleLumi_Set(distrSet& set, Double_t sf) {
+
+  set.int_lumi *= sf;
+  
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Scale cross sections
+//-----------------------------------------------------------------------------
+
+void scaleXSect_All(distrAll& set, Int_t ind, Double_t sf) {
+
+  scaleXSect_Signature(set.SS3L, ind, sf);
+  /*  scaleXSect_Signature(set.SS, ind, sf);
+	  scaleXSect_Signature(set.L3, ind, sf);*/
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void scaleXSect_Signature(distrSignature& set, Int_t ind, Double_t sf) {
+
+  scaleXSect_Region(set.CR0b,  ind,  sf);
+  scaleXSect_Region(set.CR1b,  ind,  sf);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void scaleXSect_Region(distrRegion& set, Int_t ind, Double_t sf) {
+  
+  scaleXSect_Set(set.fs_elel, ind, sf);
+  scaleXSect_Set(set.fs_elmu, ind, sf);
+  scaleXSect_Set(set.fs_mumu, ind, sf);
+  scaleXSect_Set(set.fs_comb, ind, sf);
+    
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void scaleXSect_Set(distrSet& set, Int_t ind, Double_t sf) {
+
+  set.xsect[ind] *= sf;
+  
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Set fake rates
+//-----------------------------------------------------------------------------
+
+void setFakeRates_All(distrAll& set, Double_t sf1, Double_t sf2, Double_t sf3, Double_t sf4, Double_t cf) {
+ 
+  setFakeRates_Signature(set.SS3L, sf1, sf2, sf3, sf4, cf);
+
+ return;
+}
+
+//-----------------------------------------------------------------------------
+
+void setFakeRates_Signature(distrSignature& set, Double_t sf1, Double_t sf2, Double_t sf3, Double_t sf4, Double_t cf) {
+
+  setFakeRates_Region(set.CR0b, sf1, sf2, sf3, sf4, cf);
+  setFakeRates_Region(set.CR1b, sf1, sf2, sf3, sf4, cf);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void setFakeRates_Region(distrRegion& set, Double_t sf1, Double_t sf2, Double_t sf3, Double_t sf4, Double_t cf) {
+      
+  setFakeRates_Set(set.fs_elel, sf1, sf2, sf3, sf4, cf);
+  setFakeRates_Set(set.fs_elmu, sf1, sf2, sf3, sf4, cf);
+  setFakeRates_Set(set.fs_mumu, sf1, sf2, sf3, sf4, cf);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void setFakeRates_Set(distrSet& set, Double_t sf1, Double_t sf2, Double_t sf3, Double_t sf4, Double_t cf) {
+
+  set.charge_flip = cf;
+  set.FR_hf_e = sf3;
+  set.FR_lf_e = sf1;
+  set.FR_hf_mu = sf2;
+  set.FR_lf_mu = sf4;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Weight histograms
+//-----------------------------------------------------------------------------
+
+void weightData_All(distrAll& set) {
+
+  weightData_Signature(set.SS3L);
+  /*  weightData_Signature(set.SS);
+	  weightData_Signature(set.L3);*/
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void weightData_Signature(distrSignature& set) {
+
+  
+  weightData_Region(set.CR0b);
+  weightData_Region(set.CR1b);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void weightData_Region(distrRegion& set) {
+  
+  weightData_Set(set.fs_elel);
+  weightData_Set(set.fs_elmu);
+  weightData_Set(set.fs_mumu);
+    
+  return;
+}
+
+//-----------------------------------------------------------------------------
+
+void weightData_Set(distrSet& set) {
+
+  Double_t weight[N_FITS];
+  for (int i = 1; i < N_FITS; i++) { // TO DO: start from 1 if 0 is data OR just create a new class for DATA or MC
+
+	//	weight[i] = set.int_lumi * set.xsect[i] ;
+		weight[i] = 1. * set.xsect[i] ;
+
+	double sf = 1.;
+	set.NJETS[i]->Scale(weight[i]*sf);
+	set.NBJETS[i]->Scale(weight[i]*sf);
+	set.mu2_pt[i]->Scale(weight[i]*sf);
+	set.el2_pt[i]->Scale(weight[i]*sf);
+	set.MET[i]->Scale(weight[i]*sf);
+	set.Meff[i]->Scale(weight[i]*sf);
+	/*
+	if(!test_me){
+	  set.pt_jet1[i]->Scale(weight[i]*sf);
+	  set.pt_jet2[i]->Scale(weight[i]*sf);
+	  set.pt_jet3[i]->Scale(weight[i]*sf);
+	  if(reduced){
+	  set.pt_jet4[i]->Scale(weight[i]*sf);
+	  set.pt_jet5[i]->Scale(weight[i]*sf);
+	  }
+	  set.NBJETS[i]->Scale(weight[i]*sf);
+	  set.pt_bjet1[i]->Scale(weight[i]*sf);
+	  set.pt_bjet2[i]->Scale(weight[i]*sf);
+	  set.pt_bjet3[i]->Scale(weight[i]*sf);
+	  if(reduced){
+	  set.pt_bjet4[i]->Scale(weight[i]*sf);
+	  }
+	  set.mu1_pt[i]->Scale(weight[i]*sf);
+	  set.mu2_pt[i]->Scale(weight[i]*sf);
+	  set.mu3_pt[i]->Scale(weight[i]*sf);
+	  set.mu_eta[i]->Scale(weight[i]*sf);
+	  set.el1_pt[i]->Scale(weight[i]*sf);
+	  set.el2_pt[i]->Scale(weight[i]*sf);
+	  set.el3_pt[i]->Scale(weight[i]*sf);
+	  set.el_eta[i]->Scale(weight[i]*sf);
+	  set.MET[i]->Scale(weight[i]*sf);
+	  set.HT[i]->Scale(weight[i]*sf);
+	  set.Meff[i]->Scale(weight[i]*sf);
+	  set.mT[i]->Scale(weight[i]*sf);
+	  set.mT_min[i]->Scale(weight[i]*sf);
+	  if(reduced){
+	  set.MZ[i]->Scale(weight[i]*sf);
+	  set.Mlll[i]->Scale(weight[i]*sf);
+	  }
+	  set.Mee[i]->Scale(weight[i]*sf);
+	  set.Mmumu[i]->Scale(weight[i]*sf);
+	  set.LEPPt[i]->Scale(weight[i]*sf);
+	  set.LEP1Pt[i]->Scale(weight[i]*sf);
+	  set.LEP2Pt[i]->Scale(weight[i]*sf);
+	  set.LEP3Pt[i]->Scale(weight[i]*sf);
+	  set.LEPChargeSum[i]->Scale(weight[i]*sf);
+	  if(reduced){
+	  set.lep_softest_pt[i]->Scale(weight[i]*sf);}
+	  }*/
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Variable choice: function that sets the distributions used for fcn
+// this function takes in 6 pointers to distibutions
+//-----------------------------------------------------------------------------
+void fcn_dist(distrSignature* set, TH1D* hist1[N_FITS], TH1D* hist2[N_FITS], TH1D* hist3[N_FITS], TH1D* hist4[N_FITS], TH1D* hist5[N_FITS], TH1D* hist6[N_FITS]) {
+  my_set = set;
+
+  for (int i = 0; i < N_FITS; i++){ 
+	set->OPT1[i] = (TH1D*) hist1[i]->Clone("test_OPT1_elel_b0");
+	set->OPT2[i] = (TH1D*) hist2[i]->Clone("test_OPT2_elmu_b0");
+	set->OPT3[i] = (TH1D*) hist3[i]->Clone("test_OPT3_mumu_b0");
+	set->OPT4[i] = (TH1D*) hist4[i]->Clone("test_OPT4_elel_b1HTl");
+	set->OPT5[i] = (TH1D*) hist5[i]->Clone("test_OPT5_elmu_b1HTl");
+	set->OPT6[i] = (TH1D*) hist6[i]->Clone("test_OPT6_mumu_b1HTl");
+  }
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Minuit minimization
+//-----------------------------------------------------------------------------
+void getFakeRateCorr() {
+ // Initializing the variables
+  const int nfit = 5;
+
+  TMinuit *minuit = new TMinuit(nfit);
+  minuit->SetFCN(fcn);
+  minuit->SetPrintLevel(1); //TODO: (-1);
+  double arglist[10];
+  int ierflg = 0;
+  //  minuit->mnexcm("SET NOW", arglist, 0, ierflg); // no warnings
+ 
+  ////Setting up minuit parameters
+  Double_t vstart[nfit] = {  1., 1., 1., 1., 1.};
+  Double_t step[nfit] = { 0.01, 0.01, 0.01, 0.01, 0.01 };
+  TString name[nfit] = {"charge_flip", "FR_hf_e", "FR_lf_e", "FR_hf_mu", "FR_lf_mu"};
+
+  //Things i want to keep after fit
+  Double_t value[nfit];
+  Double_t Error[nfit];
+  //  minuit-> SetErrorDef(0.5); // instead define fnc as -2log
+  for (int j = 0; j < nfit; j++) 
+    minuit->mnparm(j, name[j], vstart[j], step[j], 0., 10., ierflg);
+  // mnparam(Int_t iPar, TString name, Double_t startval, Double_t stepval, Double_t min, Double_t max, Int_t &errFlag)
+  // min, max?
+
+  //Running the minimization 
+  arglist[0] = 1; 
+  //  minuit->FixParameter(0); // Keep charge flip constant
+
+  //Instructs Minuit to call subroutine FCN with the value of IFLAG=<iflag>	
+  minuit->mnexcm("CAL", arglist, 1, ierflg); 	
+
+  //The inverse of SET GRAdient, instructs Minuit not to use the first derivatives calculated by the user in FCN.  
+  minuit->mnexcm("SET NOG", arglist, 0, ierflg);
+
+  //Causes minimization of the function by the method of Migrad, as does the MIGrad command,
+  // but switches to the SIMplex method if Migrad fails to converge. Arguments are as for
+  // MIGrad. Note that command requires four characters to be unambiguous with MINOs.  
+  minuit->mnexcm("MINIMIZE", arglist, 0, ierflg);
+    
+  // Causes minimization of the function by the method of Migrad, the most efficient and
+  // complete single method, recommended for general functions (see also MINImize). The
+  // minimization produces as a by-product the error matrix of the parameters, which is usually
+  // reliable unless warning messages are produced. The optional argument [maxcalls] specifies the
+  //(approximate) maximum number of function calls after which the calculation will be stopped
+  // even if it has not yet converged. The optional argument [tolerance] specifies required
+  // tolerance on the function value at the minimum. The default tolerance is 0.1, and the
+  // minimization will stop when the estimated vertical distance to the minimum (EDM) is less
+  // than 0.001*[tolerance]*UP (see SET ERR).  
+  minuit->mnexcm("MIGRAD", arglist, 0, ierflg);
+  
+  Double_t tchi2, edm, errdef;
+  Int_t npari = 1, nparx = 7, minuit_status = -1;
+  minuit->mnstat(tchi2, edm, errdef, npari, nparx, minuit_status);
+  std::cout << "\n\n\nerror def: \n\n\n" << errdef << endl;
+  arglist[0] = 10000; // --
+  arglist[1] = 5.; // --
+  minuit->mnexcm("HESSE", arglist, 1, ierflg);
+  //Instructs Minuit to calculate, by finite differences, the Hessian or error matrix.
+  // That is, it calculates the full matrix of second derivatives of the function with
+  // respect to the currently variable parameters, and inverts it, printing out the
+  // resulting error matrix. The optional argument [maxcalls] specifies the (approximate)
+  // maximum number of function calls after which the calculation will be stopped.
+  //	minuit->mnexcm("MINOS", arglist, 2, ierflg); // --
+  //Causes a Minos error analysis to be performed on the parameters whose numbers [parno]
+  // are specified. If none are specified, Minos errors are calculated for all variable
+  // parameters. Minos errors may be expensive to calculate, but are very reliable since
+  // they take account of non-linearities in the problem as well as parameter correlations,
+  // and are in general asymmetric. The optional argument [maxcalls] specifies the
+  // (approximate) maximum number of function calls per parameter requested, after which
+  // the calculation will be stopped for that parameter.
+
+  arglist[0] = 1;
+  minuit->mnexcm("CAL", arglist, 1, ierflg);
+  
+  //  double sum_err=0.;
+  //Grab the parameters for the pull study
+  /*
+	std::cout << "\nLOG" ;
+	for (int j = 0; j < nfit; j++) {
+    minuit->GetParameter(j, value[j], Error[j]);
+    sum_err += Error[j]; // smallest fractional error
+	}
+	std::cout << " " << sum_err << endl;
+  */
+  /*
+  //Grab the parameters for this fit
+  for (int j = 0; j < nfit; j++) {
+  minuit->GetParameter(j, value[j], Error[j]);
+  std::cout << "\n " << name[j] << ", par[" << j << "]: " << value[j] << " Error: " << Error[j];
+  }
+  
+  //Grab the parameters for the pull study
+  std::cout << "\nLOG" ;
+  for (int j = 0; j < nfit; j++) {
+  minuit->GetParameter(j, value[j], Error[j]);
+  std::cout << "\n "<< value[j] << " " << Error[j] << " " << Error[j]/value[j];
+  }
+  */
+  /*
+  //Grab the parameters for the pull study
+  std::cout << "\nTOY\n" ;
+  for (int j = 0; j < nfit; j++) {
+    minuit->GetParameter(j, value[j], Error[j]);
+    std::cout << value[j] << " " << Error[j] << " ";
+  }
+  */
+
+  //Grab the parameters for the pull study
+  //  std::cout << "\nLOG" ;
+  for (int j = 0; j < nfit; j++) {
+    minuit->GetParameter(j, value[j], Error[j]);
+		  std::cout << "\n "<<  name[j] << " " << value[j] << " " << Error[j];
+  }
+  std::cout << std::endl << std::endl;
+
+  for (int j = 0; j < nfit; j++) {
+    minuit->GetParameter(j, value[j], Error[j]);
+		  std::cout << "\n "<< value[j] << " " << Error[j];
+  }
+  std::cout << std::endl << std::endl;
+
+ my_charge_flip = value[0];
+ my_FR_hf_e = value[1];
+ my_FR_lf_e = value[2];
+ my_FR_hf_mu = value[3];
+ my_FR_lf_mu = value[4];
+ my_charge_flip_err = Error[0];
+ my_FR_hf_e_err = Error[1];
+ my_FR_lf_e_err = Error[2];
+ my_FR_hf_mu_err = Error[3];
+ my_FR_lf_mu_err = Error[4];
+
+  minuit->Clear();
+  //Delete It
+  minuit->Delete();
+  
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Minuit function: Chi2 (poisson likelihood)
+//-----------------------------------------------------------------------------
+void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) {
+  // par = the fake rate corrections
+
+  double sf;
+
+  distrSignature* set;
+  set = my_set; 
+
+  // Expected distributions
+  // CR0b CR
+  TH1D* hist_elel_CR0b;
+  TH1D* hist_elmu_CR0b;
+  TH1D* hist_mumu_CR0b;
+
+  // CR1b CR
+  TH1D* hist_elel_CR1b;
+  TH1D* hist_elmu_CR1b;
+  TH1D* hist_mumu_CR1b;
+
+  if(npar || gin || iflag){
+  }
+
+  // Initialize the histograms with data and reset to 0
+  // CR0b CR
+  //	hist_elel_CR0b = (TH1D*) set->CR0b.fs_elel.HT[0]->Clone("test_HT_elel_CR0b");
+  hist_elel_CR0b = (TH1D*) set->OPT1[0]->Clone("test_OPT1_elel_CR0b");//->Clone("test_HT_elel_CR0b");
+  hist_elel_CR0b->Reset();
+  hist_elmu_CR0b= (TH1D*) set->OPT2[0]->Clone("test_OPT2_elmu_CR0b");
+  hist_elmu_CR0b->Reset();
+  hist_mumu_CR0b= (TH1D*) set->OPT3[0]->Clone("test_OPT3_mumu_CR0b");
+  hist_mumu_CR0b->Reset();
+	
+  // CR1b CR
+  //  if(MultRegion){
+	hist_elel_CR1b= (TH1D*)set->OPT4[0]->Clone("test_OPT4_elel_CR1b");
+	hist_elel_CR1b->Reset();
+	hist_elmu_CR1b= (TH1D*) set->OPT5[0]->Clone("test_OPT5_elmu_CR1b");
+	hist_elmu_CR1b->Reset();
+	hist_mumu_CR1b= (TH1D*) set->OPT6[0]->Clone("test_OPT6_mumu_CR1b");
+	hist_mumu_CR1b->Reset();
+	//  }
+
+  // Reweight distributions with scale factors
+  //-------------------------------------------------------------------------------------------------
+
+  // files	const string files[N_FITS] = {"data.root", "MC.root", "fakes_el_lf.root", "fakes_mu_lf.root", "fakes_el_hf.root", "fakes_mu_hf.root", "charge_flip.root"};
+  // parameters TString name[nfit] = { "FR_lf_e", "FR_lf_mu", "FR_hf_e", "FR_hf_mu", "charge_flip" };
+
+
+  for (int i = 1; i < N_FITS; i++) {
+	sf = 1.;
+
+	if (i == charge_flip_ind_fit) 
+	  sf = fabs(par[0]); 
+
+	if (i == fakes_el_hf_ind_fit) 
+	  sf = fabs(par[1]); 
+
+	if (i == fakes_el_lf_ind_fit) 
+	  sf = fabs(par[2]); 
+
+	if (i == fakes_mu_hf_ind_fit) 
+	  sf = fabs(par[3]); 
+
+	if (i == fakes_mu_lf_ind_fit) 
+	  sf = fabs(par[4]); 
+
+	hist_elel_CR0b->Add( set->OPT1[i], sf);
+	hist_elmu_CR0b->Add(set->OPT2[i], sf);
+	hist_mumu_CR0b->Add(set->OPT3[i], sf);
+	//	if(MultRegion){
+	hist_elel_CR1b->Add(set->OPT4[i], sf);
+	hist_elmu_CR1b->Add(set->OPT5[i], sf);
+	hist_mumu_CR1b->Add(set->OPT6[i], sf);}
+  //  }
+
+
+  //-------------------------------------------------------------------------------------------------
+
+  // Now we calculate the probability
+  f = 0; // chi2
+  // CR1
+  f += CalLikelihood(hist_elel_CR0b, set->OPT1[0]); // CalLikelihood(MC, data)
+  f += CalLikelihood(hist_elmu_CR0b, set->OPT2[0]); // CalLikelihood(MC, data)
+  f += CalLikelihood(hist_mumu_CR0b,set->OPT3[0]); // CalLikelihood(MC, data)
+  //  if(MultRegion){
+	// CR2
+	f += CalLikelihood(hist_elel_CR1b, set->OPT4[0]); // CalLikelihood(MC, data)
+	f += CalLikelihood(hist_elmu_CR1b, set->OPT5[0]); // CalLikelihood(MC, data)
+	f += CalLikelihood(hist_mumu_CR1b, set->OPT6[0]); // CalLikelihood(MC, data)
+	//  }
+
+  delete hist_elel_CR0b;
+  delete hist_elmu_CR0b;
+  delete hist_mumu_CR0b;
+
+  //  if(MultRegion){
+  delete hist_elel_CR1b;
+  delete hist_elmu_CR1b;
+  delete hist_mumu_CR1b;
+	//  }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+// Likelihood calculation
+//-----------------------------------------------------------------------------
+Double_t CalLikelihood(TH1D* MC, TH1D* data) {
+
+  double f = 0;
+
+  for (int i = 1; i <= MC->GetNbinsX(); i++) {
+	if (MC->GetBinContent(i) > 0) {
+	  //Uncertainty on the predicted number of events
+	  double x;
+	  double loc_prob = 0;
+	  double gaus;
+	  double gaus_norm = 0;
+
+	  //This is integral is within 2 sigma.
+	  double max, min;
+	  max = MC->GetBinContent(i) + 2. * MC->GetBinError(i);
+	  min = MC->GetBinContent(i) - 2. * MC->GetBinError(i);
+	  if (min < 0)
+		min = 0;
+
+	  // turn-off MC stats
+	  if(MCstat){
+		//we do 30 iterrations for the integral
+		for (int j = 0; j < 30; j++) {
+		  x = min + (max - min) * ((double) j + 0.5) / 30.;
+		  gaus = TMath::Gaus(x, MC->GetBinContent(i), MC->GetBinError(i), kFALSE);
+		  gaus_norm += gaus;
+		  loc_prob += TMath::Poisson(data->GetBinContent(i), x) * gaus;
+		}
+
+		loc_prob = loc_prob / gaus_norm;
+	  }
+	  else
+		loc_prob += TMath::Poisson(data->GetBinContent(i), MC->GetBinContent(i));
+
+	  //			f += -log(loc_prob);
+	  f += -2*log(loc_prob);
+	}
+  }
+
+  return f;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Main routine
+//-----------------------------------------------------------------------------
+
+int main(int argc, char **argv ) {
+  
+  if (argc < 3) {
+	std::cout << "Usage: " << argv[0] << " PATH FOLDER\n";
+	return 1;
+  }
+
+  SetAtlasStyle(); 
+  
+
+  //------------------------------------------
+  // tags
+  const string tag = "";
+  path = argv[1];
+  folder = argv[2];
+  //------------------------------------------
+
+  //------------------------------------------
+  // Define distributions
+  
+  // Background and data at detector level
+  distrAll det_lvl;
+  
+  //------------------------------------------
+  // Get data
+  std::cout << "\nStart reading files...\n";
+
+  std::cout << "\n// Nominal\n";
+  getData_All(det_lvl, tag, "");
+
+  std::cout << "\n...done reading files\n";
+  //------------------------------------------
+  // Weight with new scales 
+  std::cout << "\nStart re-weighting...\n";
+  weightData_All(det_lvl);
+  std::cout << "\n...done re-weighting histograms\n";
+  //------------------------------------------
+
+  // Here we set the fake rates --------------------------------------------------
+  // Initialization
+  
+   my_FR_lf_e = 1.;
+   my_FR_lf_mu = 1.;
+   my_FR_hf_e = 1.;
+   my_FR_hf_mu = 1.;
+   my_charge_flip = 1.;
+
+   setFakeRates_All(det_lvl, my_FR_lf_e, my_FR_lf_mu, my_FR_hf_e, my_FR_hf_mu, my_charge_flip);
+   //   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.el2_pt, det_lvl.SS3L.CR0b.fs_elmu.MET, det_lvl.SS3L.CR0b.fs_mumu.mu2_pt, det_lvl.SS3L.CR1b.fs_elel.el2_pt, det_lvl.SS3L.CR1b.fs_elmu.MET, det_lvl.SS3L.CR1b.fs_mumu.mu2_pt); 
+   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.NJETS, det_lvl.SS3L.CR0b.fs_elmu.NJETS, det_lvl.SS3L.CR0b.fs_mumu.NJETS, det_lvl.SS3L.CR1b.fs_elel.NJETS, det_lvl.SS3L.CR1b.fs_elmu.NJETS, det_lvl.SS3L.CR1b.fs_mumu.NJETS); // choose
+   getFakeRateCorr() ; 
+   printf("\n\nCR0b -> ee=LEP2Pt, em=MET, mm=MET, CR1b -> ee=MET, em=MET , mm=MET\n");
+   printf("Charge flip: %f +- %f\n", my_charge_flip, my_charge_flip_err);
+   printf("EL HF: %f +- %f\n", my_FR_hf_e, my_FR_hf_e_err);
+   printf("EL LF: %f +- %f\n", my_FR_lf_e, my_FR_lf_e_err);
+   printf("MU HF: %f +- %f\n", my_FR_hf_mu, my_FR_hf_mu_err);
+   printf("MU LF: %f +- %f\n", my_FR_lf_mu, my_FR_lf_mu_err);
+   char infile[512];
+   char fpath[512];
+   sprintf(fpath, "/afs/cern.ch/work/o/othrif/workarea/myFramework/Plotter/data/%s", folder);
+   int res = mkdir(fpath, 0700);
+   sprintf(infile,"%s/input_fit_%s.log", fpath, folder);
+   FILE *fpin;
+   fpin=fopen(infile, "w+");
+
+   if(fpin){
+	 fprintf(fpin, "%f %f\n", my_charge_flip, my_charge_flip_err);
+	 fprintf(fpin, "%f %f\n", my_FR_hf_e, my_FR_hf_e_err);
+	 fprintf(fpin, "%f %f\n", my_FR_lf_e, my_FR_lf_e_err);
+	 fprintf(fpin, "%f %f\n", my_FR_hf_mu, my_FR_hf_mu_err);
+	 fprintf(fpin, "%f %f", my_FR_lf_mu, my_FR_lf_mu_err);
+   }
+   else 
+	 printf("Couldn't open %s", infile);
+    
+   setFakeRates_All(det_lvl, my_FR_lf_e, my_FR_lf_mu, my_FR_hf_e, my_FR_hf_mu, my_charge_flip); // initialize
+   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.MET, det_lvl.SS3L.CR0b.fs_elmu.MET, det_lvl.SS3L.CR0b.fs_mumu.MET, det_lvl.SS3L.CR1b.fs_elel.MET, det_lvl.SS3L.CR1b.fs_elmu.MET, det_lvl.SS3L.CR1b.fs_mumu.MET); // choose
+   getFakeRateCorr() ; // fit
+   printf("\n\nCR0b -> ee=MET, em=MET, mm=MET, CR1b -> ee=MET, em=MET , mm=MET\n");
+   printf("Charge flip: %f +- %f\n", my_charge_flip, my_charge_flip_err);
+   printf("EL HF: %f +- %f\n", my_FR_hf_e, my_FR_hf_e_err);
+   printf("EL LF: %f +- %f\n", my_FR_lf_e, my_FR_lf_e_err);
+   printf("MU HF: %f +- %f\n", my_FR_hf_mu, my_FR_hf_mu_err);
+   printf("MU LF: %f +- %f\n", my_FR_lf_mu, my_FR_lf_mu_err);
+
+   setFakeRates_All(det_lvl, my_FR_lf_e, my_FR_lf_mu, my_FR_hf_e, my_FR_hf_mu, my_charge_flip); // initialize
+   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.NJETS, det_lvl.SS3L.CR0b.fs_elmu.NJETS, det_lvl.SS3L.CR0b.fs_mumu.NJETS, det_lvl.SS3L.CR1b.fs_elel.NJETS, det_lvl.SS3L.CR1b.fs_elmu.NJETS, det_lvl.SS3L.CR1b.fs_mumu.NJETS); // choose
+   getFakeRateCorr() ; // fit
+   printf("\n\nCR0b -> ee=NJETS, em=NJETS, mm=NJETS, CR1b -> ee=NJETS, em=NJETS , mm=NJETS\n");
+   printf("Charge flip: %f +- %f\n", my_charge_flip, my_charge_flip_err);
+   printf("EL HF: %f +- %f\n", my_FR_hf_e, my_FR_hf_e_err);
+   printf("EL LF: %f +- %f\n", my_FR_lf_e, my_FR_lf_e_err);
+   printf("MU HF: %f +- %f\n", my_FR_hf_mu, my_FR_hf_mu_err);
+   printf("MU LF: %f +- %f\n", my_FR_lf_mu, my_FR_lf_mu_err);
+	 
+
+   setFakeRates_All(det_lvl, my_FR_lf_e, my_FR_lf_mu, my_FR_hf_e, my_FR_hf_mu, my_charge_flip);
+   //   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.el2_pt, det_lvl.SS3L.CR0b.fs_elmu.MET, det_lvl.SS3L.CR0b.fs_mumu.mu2_pt, det_lvl.SS3L.CR1b.fs_elel.el2_pt, det_lvl.SS3L.CR1b.fs_elmu.MET, det_lvl.SS3L.CR1b.fs_mumu.mu2_pt); 
+   /*   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.LEP2Pt, det_lvl.SS3L.CR0b.fs_elmu.MET, det_lvl.SS3L.CR0b.fs_mumu.MET, det_lvl.SS3L.CR1b.fs_elel.MET, det_lvl.SS3L.CR1b.fs_elmu.MET, det_lvl.SS3L.CR1b.fs_mumu.MET); 
+   getFakeRateCorr() ; 
+   printf("\n\nCR0b -> ee=LEP2Pt, em=MET, mm=MET, CR1b -> ee=MET, em=MET , mm=MET\n");
+   printf("Charge flip: %f +- %f\n", my_charge_flip, my_charge_flip_err);
+   printf("EL HF: %f +- %f\n", my_FR_hf_e, my_FR_hf_e_err);
+   printf("EL LF: %f +- %f\n", my_FR_lf_e, my_FR_lf_e_err);
+   printf("MU HF: %f +- %f\n", my_FR_hf_mu, my_FR_hf_mu_err);
+   printf("MU LF: %f +- %f\n", my_FR_lf_mu, my_FR_lf_mu_err);
+
+   setFakeRates_All(det_lvl, my_FR_lf_e, my_FR_lf_mu, my_FR_hf_e, my_FR_hf_mu, my_charge_flip);
+   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.el2_pt, det_lvl.SS3L.CR0b.fs_elmu.HT, det_lvl.SS3L.CR0b.fs_mumu.mu2_pt, det_lvl.SS3L.CR1b.fs_elel.el2_pt, det_lvl.SS3L.CR1b.fs_elmu.HT, det_lvl.SS3L.CR1b.fs_mumu.mu2_pt); 
+   getFakeRateCorr() ; 
+   printf("\n\nCR0b -> ee=el2_pt, em=HT, mm=mu2_pt, CR1b -> ee=el2_pt, em=HT , mm=mu2_pt\n");
+   printf("Charge flip: %f +- %f\n", my_charge_flip, my_charge_flip_err);
+   printf("EL HF: %f +- %f\n", my_FR_hf_e, my_FR_hf_e_err);
+   printf("EL LF: %f +- %f\n", my_FR_lf_e, my_FR_lf_e_err);
+   printf("MU HF: %f +- %f\n", my_FR_hf_mu, my_FR_hf_mu_err);
+   printf("MU LF: %f +- %f\n", my_FR_lf_mu, my_FR_lf_mu_err);
+   */
+
+   setFakeRates_All(det_lvl, my_FR_lf_e, my_FR_lf_mu, my_FR_hf_e, my_FR_hf_mu, my_charge_flip);
+   fcn_dist(&det_lvl.SS3L, det_lvl.SS3L.CR0b.fs_elel.el2_pt, det_lvl.SS3L.CR0b.fs_elmu.NJETS, det_lvl.SS3L.CR0b.fs_mumu.mu2_pt, det_lvl.SS3L.CR1b.fs_elel.el2_pt, det_lvl.SS3L.CR1b.fs_elmu.NJETS, det_lvl.SS3L.CR1b.fs_mumu.mu2_pt); 
+   getFakeRateCorr() ; 
+   printf("\n\nCR0b -> ee=el2_pt, em=NJETS, mm=mu2_pt, CR1b -> ee=el2_pt, em=NJETS , mm=mu2_pt\n");
+   printf("Charge flip: %f +- %f\n", my_charge_flip, my_charge_flip_err);
+   printf("EL HF: %f +- %f\n", my_FR_hf_e, my_FR_hf_e_err);
+   printf("EL LF: %f +- %f\n", my_FR_lf_e, my_FR_lf_e_err);
+   printf("MU HF: %f +- %f\n", my_FR_hf_mu, my_FR_hf_mu_err);
+   printf("MU LF: %f +- %f\n", my_FR_lf_mu, my_FR_lf_mu_err);
+
+
+
+  gSystem->Exit(0);
+  return 0;
+}

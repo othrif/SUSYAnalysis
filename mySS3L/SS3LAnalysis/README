@@ -1,0 +1,32 @@
+localSetupDQ2Client --quiet
+localSetupFAX --skipConfirm
+
+localSetupPandaClient currentJedi --noAthenaCheck
+
+setupATLAS
+rcSetup Base,2.4.29
+
+# check out SUSYTools!
+rc checkout_pkg $SVNOFF/PhysicsAnalysis/SUSYPhys/SUSYTools/tags/SUSYTools-00-08-58
+# Need some extra packages!
+rc checkout SUSYTools/doc/packages.txt
+#
+
+
+
+rc find_packages
+rc clean
+rc compile
+
+# Needed for grid jobs
+#voms-proxy-init -voms atlas
+
+# Run job standalone:
+python SS3LAnalysis/scripts/Run.py --isData 0 --isAtlfast 0 --ismc15c 1 --nevents 100  --inputDS myInputDS 2>&1 | tee logMC 
+
+# Run on the grid:
+python SS3LAnalysis/scripts/Run.py --isData 0 --driver grid --ismc15c 1 --inputDS myInputDS --outputDS myOutputDS;
+
+
+# Tag code
+svn cp svn+ssh://svn.cern.ch/reps/atlasphys-susy/Physics/SUSY/Analyses/SameSignLeptonsJets/trunk svn+ssh://svn.cern.ch/reps/atlasphys-susy/Physics/SUSY/Analyses/SameSignLeptonsJets/tags/SameSignLeptonsJets-00-00-XX -m "code for vYY"
