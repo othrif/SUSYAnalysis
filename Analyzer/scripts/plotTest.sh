@@ -1,0 +1,12 @@
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR ttee_Np1 
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR ttmumu_Np0
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR ttbar 
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR GG_ttn1_1600_5000_1
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR GG_ttn1_1200_5000_400 
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR GG_ttn1_1200_5000_855
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR GG_2stepWZ_1600_850_475_10 
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR GG_2stepWZ_1600_1100_850_6
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR BB_onestepC1_550_200_100_SS2L 
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR BB_onestepC1_550_375_275_SS2L
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR GG_N2_SLN1_1600_100_2L 
+plotTest2 /afs/cern.ch/user/o/othrif/workarea/results/v36 Old_OR New_OR GG_N2_SLN1_1600_1100_2L

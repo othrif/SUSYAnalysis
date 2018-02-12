@@ -1,0 +1,99 @@
+#for i in $(ls MiniNtuple/v28/); do echo $i | awk -F'.' '{print "optimize $OUTPUT_FOLDER " $3 "." $4 " $INPUT_PATH/"$i}'; done | grep GG_2 >> runSignal_GG_2step_WZ.sh
+
+#!/bin/bash
+
+# Optimize samples according to desired grouping
+
+if ! type -p "optimize" > /dev/null; then
+	printf "Setting up the environment...\n"
+	source rcSetup.sh
+fi
+
+printf "Compiling...\n"
+rc compile
+
+# path to input files
+export INPUT_PATH=/UserDisk2/othrif/data/MiniNtuple/v36
+
+# output folder name
+if [ $# -eq 0 ]
+  then
+    printf "\nERROR: No output folder supplied\n\n"
+	return # change to exit when not sourcing
+fi
+
+export BASE_PATH=/afs/cern.ch/work/o/othrif/workarea/results/v36/
+mkdir -p $BASE_PATH
+export OUTPUT_FOLDER=$1
+export OUTPUT_PATH=/afs/cern.ch/work/o/othrif/workarea/results/v36/$OUTPUT_FOLDER
+mkdir -p $OUTPUT_PATH
+
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_600_350_225_100 $INPUT_PATH/user.othrif.371200.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_600_350_225_100.a766_r6282_output.root
+
+#<<EOF
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_600_450_375_300 $INPUT_PATH/user.othrif.371201.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_600_450_375_300.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_600_500_450_400 $INPUT_PATH/user.othrif.371202.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_600_500_450_400.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_600_550_525_500 $INPUT_PATH/user.othrif.371203.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_600_550_525_500.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_600_576_564_552 $INPUT_PATH/user.othrif.371204.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_600_576_564_552.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_700_650_625_600 $INPUT_PATH/user.othrif.371205.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_700_650_625_600.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_800_450_275_100 $INPUT_PATH/user.othrif.371206.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_800_450_275_100.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_800_550_425_300 $INPUT_PATH/user.othrif.371207.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_800_550_425_300.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_800_600_500_400 $INPUT_PATH/user.othrif.371208.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_800_600_500_400.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_800_650_575_500 $INPUT_PATH/user.othrif.371209.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_800_650_575_500.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_800_700_650_600 $INPUT_PATH/user.othrif.371210.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_800_700_650_600.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_800_750_725_700 $INPUT_PATH/user.othrif.371211.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_800_750_725_700.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_900_750_675_600 $INPUT_PATH/user.othrif.371213.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_900_750_675_600.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_900_800_750_700 $INPUT_PATH/user.othrif.371214.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_900_800_750_700.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1000_550_325_10 $INPUT_PATH/user.othrif.371216.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1000_550_325_10.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1000_650_475_30 $INPUT_PATH/user.othrif.371217.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1000_650_475_30.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1000_750_625_50 $INPUT_PATH/user.othrif.371218.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1000_750_625_50.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1000_800_700_60 $INPUT_PATH/user.othrif.371219.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1000_800_700_60.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1000_850_775_70 $INPUT_PATH/user.othrif.371220.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1000_850_775_70.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1000_900_850_80 $INPUT_PATH/user.othrif.371221.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1000_900_850_80.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1100_750_575_40 $INPUT_PATH/user.othrif.371223.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1100_750_575_40.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1100_800_650_50 $INPUT_PATH/user.othrif.371224.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1100_800_650_50.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1100_850_725_60 $INPUT_PATH/user.othrif.371225.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1100_850_725_60.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1100_900_800_70 $INPUT_PATH/user.othrif.371226.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1100_900_800_70.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1100_950_875_80 $INPUT_PATH/user.othrif.371227.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1100_950_875_80.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1200_650_375_10 $INPUT_PATH/user.othrif.371229.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1200_650_375_10.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1200_750_525_30 $INPUT_PATH/user.othrif.371230.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1200_750_525_30.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1200_800_600_40 $INPUT_PATH/user.othrif.371231.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1200_800_600_40.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1200_850_675_50 $INPUT_PATH/user.othrif.371232.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1200_850_675_50.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1200_900_750_60 $INPUT_PATH/user.othrif.371233.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1200_900_750_60.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1200_950_825_70 $INPUT_PATH/user.othrif.371234.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1200_950_825_70.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1200_1000_900_8 $INPUT_PATH/user.othrif.371235.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1200_1000_900_8.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_700_400_10 $INPUT_PATH/user.othrif.371237.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_700_400_10.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_750_475_20 $INPUT_PATH/user.othrif.371238.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_750_475_20.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_800_550_30 $INPUT_PATH/user.othrif.371239.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_800_550_30.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_850_625_40 $INPUT_PATH/user.othrif.371240.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_850_625_40.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_900_700_50 $INPUT_PATH/user.othrif.371241.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_900_700_50.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_950_775_60 $INPUT_PATH/user.othrif.371242.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_950_775_60.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_1000_850_7 $INPUT_PATH/user.othrif.371243.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_1000_850_7.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1300_1050_925_8 $INPUT_PATH/user.othrif.371244.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1300_1050_925_8.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_750_425_10 $INPUT_PATH/user.othrif.371246.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_750_425_10.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_800_500_20 $INPUT_PATH/user.othrif.371247.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_800_500_20.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_850_575_30 $INPUT_PATH/user.othrif.371248.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_850_575_30.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_900_650_40 $INPUT_PATH/user.othrif.371249.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_900_650_40.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_950_725_50 $INPUT_PATH/user.othrif.371250.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_950_725_50.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_1000_800_6 $INPUT_PATH/user.othrif.371251.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_1000_800_6.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_1050_875_7 $INPUT_PATH/user.othrif.371252.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_1050_875_7.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1400_1100_950_8 $INPUT_PATH/user.othrif.371253.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1400_1100_950_8.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1500_800_450_10 $INPUT_PATH/user.othrif.371255.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1500_800_450_10.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1500_850_525_20 $INPUT_PATH/user.othrif.371256.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1500_850_525_20.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1500_900_600_30 $INPUT_PATH/user.othrif.371257.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1500_900_600_30.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1500_950_675_40 $INPUT_PATH/user.othrif.371258.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1500_950_675_40.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1500_1000_750_5 $INPUT_PATH/user.othrif.371259.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1500_1000_750_5.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1500_1050_825_6 $INPUT_PATH/user.othrif.371260.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1500_1050_825_6.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1500_1100_900_7 $INPUT_PATH/user.othrif.371261.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1500_1100_900_7.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1600_850_475_10 $INPUT_PATH/user.othrif.371264.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1600_850_475_10.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1600_900_550_20 $INPUT_PATH/user.othrif.371265.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1600_900_550_20.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1600_950_625_30 $INPUT_PATH/user.othrif.371266.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1600_950_625_30.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1600_1000_700_4 $INPUT_PATH/user.othrif.371267.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1600_1000_700_4.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1600_1050_775_5 $INPUT_PATH/user.othrif.371268.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1600_1050_775_5.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1600_1100_850_6 $INPUT_PATH/user.othrif.371269.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1600_1100_850_6.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1700_900_500_10 $INPUT_PATH/user.othrif.371273.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1700_900_500_10.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1700_950_575_20 $INPUT_PATH/user.othrif.371274.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1700_950_575_20.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1700_1000_650_3 $INPUT_PATH/user.othrif.371275.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1700_1000_650_3.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1700_1050_725_4 $INPUT_PATH/user.othrif.371276.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1700_1050_725_4.a766_r6282_output.root
+analyze-v36 $OUTPUT_FOLDER GG_2stepWZ_1700_1100_800_5 $INPUT_PATH/user.othrif.371277.MadGraphPythia8EvtGen_A14N_GG_2stepWZ_1700_1100_800_5.a766_r6282_output.root
+#EOF

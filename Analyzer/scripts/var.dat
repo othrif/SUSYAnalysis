@@ -1,0 +1,18 @@
+bool SR3L1 = (lep_signal.has_ss && numLept >= 3 && n_bjets == 0 && n_jets_40 >= 4 && met > 250000 );
+bool SR3L2 = (lep_signal.has_ss && numLept >= 3 && n_bjets == 0 && n_jets_40 >= 4 && met > 200000 && meff > 1800000);
+bool SR0b1 = (lep_signal.has_ss && n_bjets == 0 && n_jets_30 >= 6  && met > 150000 && meff > 500000 && met/meff > 0.24);
+bool SR0b2 = (lep_signal.has_ss && n_bjets == 0 && n_jets_50 >= 6  && met > 150000 && meff > 1000000 );
+bool SR1b1 = (lep_signal.has_ss && n_bjets >= 1 && n_jets_25 >= 6  && met > 150000 && meff > 600000 && met/meff > 0.24 && transverse_mass(&evt, &lep_signal)>100000 );
+bool SR1b2 = (lep_signal.has_ss && n_bjets >= 1 && n_jets_25 >= 6  && met > 150000 && meff > 800000 && met/meff > 0.24 && transverse_mass(&evt, &lep_signal)>100000 );
+bool SR1b3 = (lep_signal.has_ss && n_bjets >= 1 && n_jets_25 >= 6  && met > 280000 && meff > 800000 && met/meff > 0.1 && transverse_mass(&evt, &lep_signal)>100000 );
+bool SR1b4 = (lep_signal.has_ss && n_bjets >= 1 && n_jets_30 >= 7  && met > 300000 && meff > 1500000 );
+bool SR1b3LSS = (lep_signal.has_ss && lep_signal.has_3lss  && n_bjets >= 1 &&  !lep_signal.has_Z_OS);
+bool SR3b1 = (lep_signal.has_ss && n_bjets >= 3 && n_jets_25 >= 6 && met > 220000 && meff > 600000 && met/meff > 0.18);
+bool SR3b2 = (lep_signal.has_ss && n_bjets >= 3 && n_jets_25 >= 6 && met > 150000 && meff > 1100000);
+bool SRlow = (lep_signal.has_ss && 20000 < lep_signal.pT[0] &&  lep_signal.pT[0] < 100000 && 10000 < lep_signal.pT[1] &&  lep_signal.pT[1] < 75000 &&   n_bjets >= 2 && n_jets_25 >= 6 && met > 220000 && meff > 800000 && met/meff > 0.25);
+bool SRhigh = (lep_signal.has_ss && 20000 < lep_signal.pT[0] &&  lep_signal.pT[0] < 100000 && 10000 < lep_signal.pT[1] &&  lep_signal.pT[1] < 75000 &&   n_bjets >= 1 && n_jets_25 >= 6 && met > 300000 && meff > 1000000 && met/meff > 0.3);
+bool SR1b_DD = (lep_signal.has_ss && n_bjets >= 1 && n_jets_50 >= 4  && met > 0 && meff > 1800000 && count_Ncharge >= 2);
+bool SR3b_DD = (lep_signal.has_ss && n_bjets >= 3 && n_jets_50 >= 3  && met > 0 && meff > 1400000 && count_Ncharge >= 2);
+bool SR1b_GG = (lep_signal.has_ss && n_bjets >= 1 && n_jets_50 >= 6  && met > 0 && meff > 2200000);
+bool SRRPV0b = (lep_signal.has_ss && numLept == 2 && n_bjets >= 1 && n_jets_40 >= 6  && ht > 1500000 && !lep_signal.has_Z_OS );
+bool SRRPV3b = (lep_signal.has_ss && n_bjets >= 3 && n_jets_40 >= 6  && ht > 1500000 && !lep_signal.has_Z_OS );

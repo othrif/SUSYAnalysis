@@ -1,0 +1,122 @@
+####################################################
+# Sherpa v2.2.1 ttbar
+410249  Sherpa_221_NNPDF30NNLO_ttbar_AllHadronic_MEPS_NLO                       330.19  1.1484  1.0             1.
+410250  Sherpa_221_NNPDF30NNLO_ttbar_SingleLeptonP_MEPS_NLO                     158.94  1.1484  1.0             1.
+410251  Sherpa_221_NNPDF30NNLO_ttbar_SingleLeptonM_MEPS_NLO                     158.82  1.1484  1.0             1.
+410252  Sherpa_221_NNPDF30NNLO_ttbar_dilepton_MEPS_NLO                          76.333  1.1484  1.0             1.
+
+####################################################
+# Sherpa v2.2.1 Z
+# (same NNLO k-factors as for 2.2.0 (Monica)) //MT
+
+364102   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_BFilter                      1982.2    0.9751        0.064161  1.0 
+364105   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_BFilter                    108.91    0.9751        0.11375   1.0 
+364108   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_BFilter                   39.908    0.9751        0.14618   1.0 
+364111   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_BFilter                   8.4932    0.9751        0.17559   1.0 
+364112   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV500_1000                          1.7881    0.9751        1.0       1.0 
+364113   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV1000_E_CMS                        0.14769   0.9751        1.0       1.0
+364116   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_BFilter                        1981.7    0.9751        0.063809  1.0 
+364119   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_BFilter                      110.31    0.9751        0.11443   1.0
+364122   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_BFilter                     40.643    0.9751        0.14966   1.0
+364125   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_BFilter                     8.6766    0.9751        0.17223   1.0
+364126   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV500_1000                            1.8081    0.9751        1.0       1.0
+364127   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV1000_E_CMS                          0.14857   0.9751        1.0       1.0   
+364130   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_BFilter                    1981.8    0.9751        0.064453  1.0
+364133   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_BFilter                  110.87    0.9751        0.110886  1.0
+364136   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_BFilter                 40.761    0.9751        0.13442   1.0
+364139   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV280_500_BFilter                 8.6804    0.9751        0.17313   1.0
+364140   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV500_1000                        1.8096    0.9751        1.0       1.0
+364141   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV1000_E_CMS                      0.14834   0.9751        1.0       1.0   
+364144   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV0_70_BFilter                      10709.0   0.9728        0.066175  1.0
+364147   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV70_140_BFilter                    603.32    0.9728        0.11955   1.0
+364150   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV140_280_BFilter                   222.47    0.9728        0.15185   1.0
+364153   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV280_500_BFilter                   47.476    0.9728        0.17514   1.0
+364154   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV500_1000                          9.9099    0.9728        1.0       1.0   
+364155   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV1000_E_CMS                        0.81809   0.9728        1.0       1.0
+
+364101   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_CFilterBVeto         1978.4    0.9751        0.11308   1.0 
+364104   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CFilterBVeto       109.42    0.9751        0.18596   1.0 
+364107   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CFilterBVeto      39.795    0.9751        0.23308   1.0 
+364110   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_CFilterBVeto      8.5403    0.9751        0.26528   1.0 
+364115   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_CFilterBVeto           1980.8    0.9751        0.11295   1.0 
+364118   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_CFilterBVeto         110.63    0.9751        0.18382   1.0 
+364121   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_CFilterBVeto        40.67     0.9751        0.23044   1.0 
+364124   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_CFilterBVeto        8.6711    0.9751        0.26294   1.0 
+364129   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_CFilterBVeto       1978.8    0.9751        0.11314   1.0 
+364132   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_CFilterBVeto     110.51    0.9751        0.1829    1.0 
+364135   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_CFilterBVeto    40.74     0.9751        0.22897   1.0 
+364138   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV280_500_CFilterBVeto    8.6707    0.9751        0.26245   1.0 
+364143   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV0_70_CFilterBVeto         10702.0   0.9728        0.11123   1.0 
+364146   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV70_140_CFilterBVeto       608.15    0.9728        0.18243   1.0 
+364149   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV140_280_CFilterBVeto      221.88    0.9728        0.22527   1.0 
+364152   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV280_500_CFilterBVeto      47.397    0.9728        0.26201   1.0 
+
+ 
+364100   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_CVetoBVeto           1983.0    0.9751        0.8221    1.0 
+364103   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CVetoBVeto         108.92    0.9751        0.68873   1.0 
+364106   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CVetoBVeto        39.878    0.9751        0.60899   1.0 
+364109   Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_CVetoBVeto        8.5375    0.9751        0.55906   1.0 
+364114   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_CVetoBVeto             1981.8    0.9751        0.82106   1.0 
+364117   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_CVetoBVeto           110.5     0.9751        0.69043   1.0 
+364120   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_CVetoBVeto          40.731    0.9751        0.61452   1.0 
+364123   Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_CVetoBVeto          8.6743    0.9751        0.56134   1.0 
+364128   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_CVetoBVeto         1981.6    0.9751        0.82142   1.0 
+364131   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_CVetoBVeto       110.37    0.9751        0.68883   1.0 
+364134   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_CVetoBVeto      40.781    0.9751        0.60821   1.0 
+364137   Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV280_500_CVetoBVeto      8.5502    0.9751        0.56036   1.0 
+364142   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV0_70_CVetoBVeto           10700.0   0.9728        0.8216    1.0 
+364145   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV70_140_CVetoBVeto         603.23    0.9728        0.68924   1.0 
+364148   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV140_280_CVetoBVeto        222.28    0.9728        0.60735   1.0 
+364151   Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV280_500_CVetoBVeto        47.375    0.9728        0.55887   1.0 
+
+
+####################################################
+# Sherpa v2.2.1 W
+# (same NNLO k-factors as for 2.2.0 (Monica)) //MT
+
+364158   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_BFilter              19135.0   0.9702        0.044118  1.0 
+364161   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV70_140_BFilter            944.63    0.9702        0.075648  1.0 
+364164   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_BFilter           339.54    0.9702        0.10872   1.0 
+364167   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV280_500_BFilter           72.045    0.9702        0.13337   1.0 
+364168   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV500_1000                  15.01     0.9702        1.0       1.0
+364169   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV1000_E_CMS                1.2344    0.9702        1.0       1.0
+
+364172   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV0_70_BFilter               19135.0   0.9702        0.044141  1.0 
+364175   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_BFilter             945.15    0.9702        0.10341   1.0
+364178   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_BFilter            339.48    0.9702        0.10898   1.0 
+364181   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV280_500_BFilter            72.113    0.9702        0.13391   1.0 
+364182   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV500_1000                   15.224    0.9702        1.0       1.0
+364183   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV1000_E_CMS                 1.2334    0.9702        1.0       1.0
+
+364186   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV0_70_BFilter             19163.0   0.9702        0.044594  1.0 
+364189   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140_BFilter           943.30    0.9702        0.10396   1.0
+364192   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_BFilter          339.54    0.9702        0.11799   1.0 
+364195   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_BFilter          72.026    0.9702        0.13426   1.0 
+364196   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV500_1000                 15.046    0.9702        1.0       1.0
+364197   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV1000_E_CMS               1.2339    0.9702        1.0       1.0
+                                                                                  
+364157   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CFilterBVeto         19121.0   0.9702        0.1304    1.0 
+364160   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV70_140_CFilterBVeto       937.78    0.9702        0.23456   1.0 
+364163   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_CFilterBVeto      340.06    0.9702        0.28947   1.0 
+364166   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV280_500_CFilterBVeto      72.198    0.9702        0.31743   1.0 
+364171   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV0_70_CFilterBVeto          19130.0   0.9702        0.1303    1.0 
+364174   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_CFilterBVeto        945.67    0.9702        0.22787   1.0 
+364177   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CFilterBVeto       339.87    0.9702        0.28965   1.0 
+364180   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV280_500_CFilterBVeto       72.128    0.9702        0.31675   1.0 
+364185   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV0_70_CFilterBVeto        19153.0   0.9702        0.12934   1.0 
+364188   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140_CFilterBVeto      946.73    0.9702        0.22222   1.0 
+364191   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CFilterBVeto     339.63    0.9702        0.29025   1.0 
+364194   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_CFilterBVeto     71.976    0.9702        0.31648   1.0 
+
+364156   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CVetoBVeto           19143.0   0.9702        0.8238    1.0 
+364159   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV70_140_CVetoBVeto         944.85    0.9702        0.67463   1.0 
+364162   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_CVetoBVeto        339.54    0.9702        0.62601   1.0 
+364165   Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV280_500_CVetoBVeto        72.067    0.9702        0.54647   1.0 
+364170   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV0_70_CVetoBVeto            19127.0   0.9702        0.82447   1.0 
+364173   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_CVetoBVeto          942.58    0.9702        0.66872   1.0 
+364176   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CVetoBVeto         339.81    0.9702        0.59691   1.0 
+364179   Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV280_500_CVetoBVeto         72.084    0.9702        0.54441   1.0 
+364184   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV0_70_CVetoBVeto          19152.0   0.9702        0.82495   1.0 
+364187   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140_CVetoBVeto        947.65    0.9702        0.67382   1.0 
+364190   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CVetoBVeto       339.36    0.9702        0.59622   1.0 
+364193   Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_CVetoBVeto       72.065    0.9202        0.54569   1.0 

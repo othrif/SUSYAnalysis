@@ -1,0 +1,454 @@
+
+#!/bin/bash
+
+# Analyze samples according to desired grouping
+
+loc=`pwd`
+
+if ! type -p "analyze" > /dev/null; then
+	printf "Setting up the environment...\n"
+	source rcSetup.sh
+fi
+
+printf "Compiling...\n"
+rc compile
+
+
+# output folder name
+if [ $# -eq 0 ]
+  then
+    printf "\nERROR: No output folder supplied\n\n"
+	return # change to exit when not sourcing
+fi
+export OUTPUT_FOLDER=$1
+export BASE_PATH=/raid05/atlas/data/user/othrif/Results/v47/
+mkdir -p $BASE_PATH
+export OUTPUT_PATH=/raid05/atlas/data/user/othrif/Results/v47/$OUTPUT_FOLDER
+mkdir -p $OUTPUT_PATH
+
+# path to input files
+export INPUT_PATH=/raid05/atlas/data/user/othrif/MiniNtuple/v47
+
+######################
+# DATA
+######################
+
+## 2016 ##
+#DATA="$INPUT_PATH/user.othrif.data*.root"
+
+## 2015 ##
+
+## 2015+2016 ##
+DATA="$INPUT_PATH/user.othrif.data*.root"
+
+##
+#DATA="$INPUT_PATH/user.othrif.periodD.physics_Main*.root"
+#DATA="$DATA $INPUT_PATH/user.othrif.periodE.physics_Main*.root"
+#DATA="$DATA $INPUT_PATH/user.othrif.periodF.physics_Main*.root"
+#DATA="$DATA $INPUT_PATH/user.othrif.periodG.physics_Main*.root"
+#DATA="$DATA $INPUT_PATH/user.othrif.periodH.physics_Main*.root"
+#DATA="$DATA $INPUT_PATH/user.othrif.periodJ.physics_Main*.root"
+
+######################
+# MC
+######################
+
+# All the samples below do produce SS/3L #
+
+#ttW  
+ttW="$INPUT_PATH/user.othrif.410155.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttW.root"
+
+#ttZ
+ttZ="$INPUT_PATH/user.othrif.410218.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttee.root"
+ttZ="$ttZ $INPUT_PATH/user.othrif.410219.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttmumu.root"
+ttZ="$ttZ $INPUT_PATH/user.othrif.410220.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_tttautau.root"
+
+#WW
+WW="$INPUT_PATH/user.othrif.361069.Sherpa_CT10_llvvjj_ss_EW4.root"
+WW="$WW $INPUT_PATH/user.othrif.361070.Sherpa_CT10_llvvjj_ss_EW6.root"
+
+#WZ
+#WZ="$INPUT_PATH/user.othrif.361064.Sherpa_CT10_lllvSFMinus*.root"
+#WZ="$WZ $INPUT_PATH/user.othrif.361065.Sherpa_CT10_lllvOFMinus*.root"
+#WZ="$WZ $INPUT_PATH/user.othrif.361066.Sherpa_CT10_lllvSFPlus*.root"
+#WZ="$WZ $INPUT_PATH/user.othrif.361067.Sherpa_CT10_lllvOFPlus*.root"
+#WZ="$WZ $INPUT_PATH/user.othrif.361071.Sherpa_CT10_lllvjj_EW6*.root"
+
+WZ="$INPUT_PATH/user.othrif.344424.Sherpa_CT10_lllvSFMinus_BFilter.root"
+WZ="$WZ $INPUT_PATH/user.othrif.344425.Sherpa_CT10_lllvSFMinus_BVeto.root"
+WZ="$WZ $INPUT_PATH/user.othrif.344426.Sherpa_CT10_lllvOFMinus_BFilter.root"
+WZ="$WZ $INPUT_PATH/user.othrif.344427.Sherpa_CT10_lllvOFMinus_BVeto.root"
+WZ="$WZ $INPUT_PATH/user.othrif.344428.Sherpa_CT10_lllvSFPlus_BFilter.root"
+WZ="$WZ $INPUT_PATH/user.othrif.344429.Sherpa_CT10_lllvSFPlus_BVeto.root"
+WZ="$WZ $INPUT_PATH/user.othrif.344430.Sherpa_CT10_lllvOFPlus_BFilter.root"
+WZ="$WZ $INPUT_PATH/user.othrif.344431.Sherpa_CT10_lllvOFPlus_BVeto.root"
+WZ="$WZ $INPUT_PATH/user.othrif.361071.Sherpa_CT10_lllvjj_EW6.root"
+
+#ZZ
+#ZZ="$INPUT_PATH/user.othrif.361063.Sherpa_CT10_llll*.root"
+#ZZ="$ZZ $INPUT_PATH/user.othrif.361072.Sherpa_CT10_lllljj_EW6*.root"
+#ZZ="$ZZ $INPUT_PATH/user.othrif.361073.Sherpa_CT10_ggllll*.root"
+ZZ="$INPUT_PATH/user.othrif.344422.Sherpa_CT10_llll_BFilter.root"
+ZZ="$ZZ $INPUT_PATH/user.othrif.344423.Sherpa_CT10_llll_BVeto.root"
+ZZ="$ZZ $INPUT_PATH/user.othrif.361072.Sherpa_CT10_lllljj_EW6.root"
+ZZ="$ZZ $INPUT_PATH/user.othrif.361073.Sherpa_CT10_ggllll.root"
+
+#Rare
+ttH="$INPUT_PATH/user.othrif.343365.aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_di.root"
+ttH="$ttH $INPUT_PATH/user.othrif.343366.aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_se.root"
+ttH="$ttH $INPUT_PATH/user.othrif.343367.aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_al.root"
+Wh="$INPUT_PATH/user.othrif.342284.Pythia8EvtGen_A14NNPDF23LO_WH125_inc.root"
+Zh="$INPUT_PATH/user.othrif.342285.Pythia8EvtGen_A14NNPDF23LO_ZH125_inc.root"
+tttt="$INPUT_PATH/user.othrif.410080.MadGraphPythia8EvtGen_A14NNPDF23_4topSM*.root"
+ttt="$INPUT_PATH/user.othrif.304014.MadGraphPythia8EvtGen_A14NNPDF23_3top_SM*.root"
+tZ="$INPUT_PATH/user.othrif.410050.MadGraphPythiaEvtGen_P2012_tZ_4fl_tchan_noAllHad*.root"
+ttWW="$INPUT_PATH/user.othrif.410081.MadGraphPythia8EvtGen_A14NNPDF23_ttbarWW*.root"
+VVV="$INPUT_PATH/user.othrif.361620.Sherpa_CT10_WWW_3l3v*.root"
+VVV="$VVV $INPUT_PATH/user.othrif.361621.Sherpa_CT10_WWZ_4l2v*.root"
+VVV="$VVV $INPUT_PATH/user.othrif.361622.Sherpa_CT10_WWZ_2l4v*.root"
+VVV="$VVV $INPUT_PATH/user.othrif.361623.Sherpa_CT10_WZZ_5l1v*.root"
+VVV="$VVV $INPUT_PATH/user.othrif.361624.Sherpa_CT10_WZZ_3l3v*.root"
+VVV="$VVV $INPUT_PATH/user.othrif.361625.Sherpa_CT10_ZZZ_6l0v*.root"
+VVV="$VVV $INPUT_PATH/user.othrif.361626.Sherpa_CT10_ZZZ_4l2v*.root"
+VVV="$VVV $INPUT_PATH/user.othrif.361627.Sherpa_CT10_ZZZ_2l4v*.root"
+tWZ="$INPUT_PATH/user.othrif.410215.aMcAtNloPythia8EvtGen_A14_NNPDF23LO_260000_tWZDR.root"
+
+# All the samples below do NOT produce SS/3L #
+
+#powhegpythia6TTBarALL
+#powhegpythia6TTBarALL="$INPUT_PATH/user.othrif.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad*.root"
+#powhegpythia6TTBarALL="$powhegpythia6TTBarALL $INPUT_PATH/user.othrif.407009.PowhegPythiaEvtGen_P2012CT10_ttbarHT6c_1k_hdamp172p5_.*.root" 
+#powhegpythia6TTBarALL="$powhegpythia6TTBarALL $INPUT_PATH/user.othrif.407011.PowhegPythiaEvtGen_P2012CT10_ttbarHT1k5_hdamp172p5_no.*.root"
+#powhegpythia6TTBarALL="$powhegpythia6TTBarALL $INPUT_PATH/user.othrif.407010.PowhegPythiaEvtGen_P2012CT10_ttbarHT1k_1k5_hdamp172p5.*.root"
+#powhegpythia6TTBarALL="$powhegpythia6TTBarALL $INPUT_PATH/user.othrif.407012.*.root"
+
+powhegpythia6TTBarALL="$INPUT_PATH/user.othrif.407009.PowhegPythiaEvtGen_P2012CT10_ttbarHT6c_1k_hdamp172p5_.root"
+powhegpythia6TTBarALL="$powhegpythia6TTBarALL $INPUT_PATH/user.othrif.407010.PowhegPythiaEvtGen_P2012CT10_ttbarHT1k_1k5_hdamp172p5.root"
+powhegpythia6TTBarALL="$powhegpythia6TTBarALL $INPUT_PATH/user.othrif.407011.PowhegPythiaEvtGen_P2012CT10_ttbarHT1k5_hdamp172p5_no.root"
+powhegpythia6TTBarALL="$powhegpythia6TTBarALL $INPUT_PATH/user.othrif.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.root"
+
+#powhegpythia6TTBar
+powhegpythia6TTBar="$INPUT_PATH/user.othrif.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad*.root"
+
+#powhegpythia6TTBarHT
+powhegpythia6TTBarHT="$INPUT_PATH/user.othrif.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad*.root"
+powhegpythia6TTBarHT="$powhegpythia6TTBarHT $INPUT_PATH/user.othrif.407009.PowhegPythiaEvtGen_P2012CT10_ttbarHT6c_1k_hdamp172p5_.*.root" 
+powhegpythia6TTBarHT="$powhegpythia6TTBarHT $INPUT_PATH/user.othrif.407011.PowhegPythiaEvtGen_P2012CT10_ttbarHT1k5_hdamp172p5_no.*.root"
+powhegpythia6TTBarHT="$powhegpythia6TTBarHT $INPUT_PATH/user.othrif.407010.PowhegPythiaEvtGen_P2012CT10_ttbarHT1k_1k5_hdamp172p5.*.root"
+
+#powhegpythia6TTBarMET
+powhegpythia6TTBarMET="$INPUT_PATH/user.othrif.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad*.root"
+powhegpythia6TTBarMET="$powhegpythia6TTBarMET $INPUT_PATH/user.othrif.407012.*.root" 
+
+#singletop
+#singletop="$INPUT_PATH/user.othrif.410011.PowhegPythiaEvtGen_P2012_singletop_tchan_lept_top*.root"
+#singletop="$singletop $INPUT_PATH/user.othrif.410012.PowhegPythiaEvtGen_P2012_singletop_tchan_lept_antitop*.root"
+
+#powhegpythiaWjets
+#powhegpythia8Wjets="$INPUT_PATH/user.othrif.361100.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplusenu*.root"
+#powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361101.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplusmunu*.root"
+#powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361102.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplustaunu*.root"
+#powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361103.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminusenu*.root"
+#powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361104.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminusmunu*.root"
+#powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361105.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminustaunu*.root"
+
+powhegpythia8Wjets="$INPUT_PATH/user.othrif.361100.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplusenu.root"
+powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361101.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplusmunu.root"
+powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361102.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplustaunu.root"
+powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361103.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminusenu.root"
+powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361104.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminusmunu.root"
+powhegpythia8Wjets="$powhegpythia8Wjets $INPUT_PATH/user.othrif.361105.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminustaunu.root"
+
+#WWos
+#WWos="$INPUT_PATH/user.othrif.361077.Sherpa_CT10_ggllvv*.root"
+#WWos="$WWos $INPUT_PATH/user.othrif.361068.Sherpa_CT10_llvv*.root"
+
+#Wt
+#Wt="$INPUT_PATH/user.othrif.410015.PowhegPythiaEvtGen_P2012_Wt_dilepton_top*.root"
+#Wt="$Wt $INPUT_PATH/user.othrif.410016.PowhegPythiaEvtGen_P2012_Wt_dilepton_antitop*.root"
+
+#powhegpythia8Zjets
+#powhegpythia8Zjets="$INPUT_PATH/user.othrif.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee*.root"
+#powhegpythia8Zjets="$powhegpythia8Zjets $INPUT_PATH/user.othrif.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu*.root"
+#powhegpythia8Zjets="$powhegpythia8Zjets $INPUT_PATH/user.othrif.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau*.root"
+powhegpythia8Zjets="$INPUT_PATH/user.othrif.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.root"
+powhegpythia8Zjets="$powhegpythia8Zjets $INPUT_PATH/user.othrif.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.root"
+powhegpythia8Zjets="$powhegpythia8Zjets $INPUT_PATH/user.othrif.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.root"
+
+###########################################################################################################################
+#Spare
+
+sherpaZjets="$INPUT_PATH/user.othrif.364100.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_CVetoBVeto.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364101.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_CFilterBVet.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364102.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364103.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CVetoBVet.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364104.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CFilterBV.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364105.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364106.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CVetoBVe.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364107.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CFilterB.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364108.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364109.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_CVetoBVe.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364110.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_CFilterB.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364111.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364112.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV500_1000.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364113.Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV1000_E_CMS.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364114.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_CVetoBVeto.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364115.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_CFilterBVeto.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364116.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364117.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_CVetoBVeto.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364118.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_CFilterBVet.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364119.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364120.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_CVetoBVeto.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364121.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_CFilterBVe.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364122.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364123.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_CVetoBVeto.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364124.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_CFilterBVe.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364125.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364126.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV500_1000.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364127.Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV1000_E_CMS.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364128.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_CVetoBVet.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364129.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_CFilterBV.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364130.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364131.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_CVetoBV.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364132.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_CFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364133.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_BFilter.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364134.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_CVetoB.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364135.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_CFilte.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364136.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_BFilte.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364137.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV280_500_CVetoB.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364138.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV280_500_CFilte.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364139.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV280_500_BFilte.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364140.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV500_1000.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.364141.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV1000_E_CMS.root"
+
+
+#powhegpythia8TTBar
+#powhegpythia8TTBar="$INPUT_PATH/user.othrif.410006.PowhegPythia8EvtGen_A14_ttbar_hdamp172p5_nonallhad*.root"
+
+#sherpaTTBar
+sherpaTTBar="$INPUT_PATH/user.othrif.410022.Sherpa_CT10_ttbar_SingleLeptonP_MEPS_NLO*.root"
+sherpaTTBar="$SherpaTTBar $INPUT_PATH/user.othrif.410023.Sherpa_CT10_ttbar_SingleLeptonM_MEPS_NLO*.root"
+<<EOF
+#sherpaZjetsHF = BFilter
+sherpaZjetsHF="$INPUT_PATH/user.othrif.361383.Sherpa_CT10_Zee_Pt280_500_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361437.Sherpa_CT10_Ztautau_Pt700_1000_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361386.Sherpa_CT10_Zee_Pt500_700_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361440.Sherpa_CT10_Ztautau_Pt1000_2000_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361389.Sherpa_CT10_Zee_Pt700_1000_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361443.Sherpa_CT10_Ztautau_Pt2000_E_CMS_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361392.Sherpa_CT10_Zee_Pt1000_2000_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361469.Sherpa_CT10_Zee_Mll10to40_Pt0_70_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361395.Sherpa_CT10_Zee_Pt2000_E_CMS_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361471.Sherpa_CT10_Zee_Mll10to40_Pt70_140_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361407.Sherpa_CT10_Zmumu_Pt280_500_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361473.Sherpa_CT10_Zee_Mll10to40_Pt140_400_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361410.Sherpa_CT10_Zmumu_Pt500_700_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361475.Sherpa_CT10_Zee_Mll10to40_Pt400_E_CMS_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361413.Sherpa_CT10_Zmumu_Pt700_1000_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361477.Sherpa_CT10_Zmumu_Mll10to40_Pt0_70_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361416.Sherpa_CT10_Zmumu_Pt1000_2000_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361479.Sherpa_CT10_Zmumu_Mll10to40_Pt70_140_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361419.Sherpa_CT10_Zmumu_Pt2000_E_CMS_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361481.Sherpa_CT10_Zmumu_Mll10to40_Pt140_400_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361422.Sherpa_CT10_Ztautau_Pt0_70_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361483.Sherpa_CT10_Zmumu_Mll10to40_Pt400_E_CMS_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361425.Sherpa_CT10_Ztautau_Pt70_140_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361485.Sherpa_CT10_Ztautau_Mll10to40_Pt0_70_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361428.Sherpa_CT10_Ztautau_Pt140_280_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361487.Sherpa_CT10_Ztautau_Mll10to40_Pt70_140_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361431.Sherpa_CT10_Ztautau_Pt280_500_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361489.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361434.Sherpa_CT10_Ztautau_Pt500_700_BFilter.*_output.root"
+sherpaZjetsHF="$sherpaZjetsHF $INPUT_PATH/user.othrif.361491.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BFilter.*_output.root"
+
+#sherpaZjetsLF = CVetoBVeto CFilterBVeto
+sherpaZjetsLF="$INPUT_PATH/user.othrif.361382.Sherpa_CT10_Zee_Pt280_500_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361418.Sherpa_CT10_Zmumu_Pt2000_E_CMS_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361385.Sherpa_CT10_Zee_Pt500_700_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361421.Sherpa_CT10_Ztautau_Pt0_70_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361388.Sherpa_CT10_Zee_Pt700_1000_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361424.Sherpa_CT10_Ztautau_Pt70_140_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361391.Sherpa_CT10_Zee_Pt1000_2000_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361427.Sherpa_CT10_Ztautau_Pt140_280_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361394.Sherpa_CT10_Zee_Pt2000_E_CMS_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361430.Sherpa_CT10_Ztautau_Pt280_500_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361406.Sherpa_CT10_Zmumu_Pt280_500_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361433.Sherpa_CT10_Ztautau_Pt500_700_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361409.Sherpa_CT10_Zmumu_Pt500_700_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361436.Sherpa_CT10_Ztautau_Pt700_1000_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361412.Sherpa_CT10_Zmumu_Pt700_1000_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361439.Sherpa_CT10_Ztautau_Pt1000_2000_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361415.Sherpa_CT10_Zmumu_Pt1000_2000_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361442.Sherpa_CT10_Ztautau_Pt2000_E_CMS_CFilterBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361381.Sherpa_CT10_Zee_Pt280_500_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361417.Sherpa_CT10_Zmumu_Pt2000_E_CMS_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361384.Sherpa_CT10_Zee_Pt500_700_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361423.Sherpa_CT10_Ztautau_Pt70_140_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361387.Sherpa_CT10_Zee_Pt700_1000_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361426.Sherpa_CT10_Ztautau_Pt140_280_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361390.Sherpa_CT10_Zee_Pt1000_2000_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361429.Sherpa_CT10_Ztautau_Pt280_500_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361393.Sherpa_CT10_Zee_Pt2000_E_CMS_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361432.Sherpa_CT10_Ztautau_Pt500_700_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361405.Sherpa_CT10_Zmumu_Pt280_500_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361435.Sherpa_CT10_Ztautau_Pt700_1000_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361408.Sherpa_CT10_Zmumu_Pt500_700_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361438.Sherpa_CT10_Ztautau_Pt1000_2000_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361411.Sherpa_CT10_Zmumu_Pt700_1000_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361441.Sherpa_CT10_Ztautau_Pt2000_E_CMS_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361414.Sherpa_CT10_Zmumu_Pt1000_2000_CVetoBVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361468.Sherpa_CT10_Zee_Mll10to40_Pt0_70_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361480.Sherpa_CT10_Zmumu_Mll10to40_Pt140_400_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361470.Sherpa_CT10_Zee_Mll10to40_Pt70_140_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361482.Sherpa_CT10_Zmumu_Mll10to40_Pt400_E_CMS_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361472.Sherpa_CT10_Zee_Mll10to40_Pt140_400_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361486.Sherpa_CT10_Ztautau_Mll10to40_Pt70_140_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361474.Sherpa_CT10_Zee_Mll10to40_Pt400_E_CMS_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361488.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361476.Sherpa_CT10_Zmumu_Mll10to40_Pt0_70_BVeto.*_output.root"
+sherpaZjetsLF="$sherpaZjetsLF $INPUT_PATH/user.othrif.361490.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BVeto.*_output.root"
+
+sherpaZjets=" $INPUT_PATH/user.othrif.361468.Sherpa_CT10_Zee_Mll10to40_Pt0_70_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361469.Sherpa_CT10_Zee_Mll10to40_Pt0_70_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361470.Sherpa_CT10_Zee_Mll10to40_Pt70_140_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361471.Sherpa_CT10_Zee_Mll10to40_Pt70_140_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361472.Sherpa_CT10_Zee_Mll10to40_Pt140_400_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361473.Sherpa_CT10_Zee_Mll10to40_Pt140_400_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361474.Sherpa_CT10_Zee_Mll10to40_Pt400_E_CMS_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361475.Sherpa_CT10_Zee_Mll10to40_Pt400_E_CMS_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363388.Sherpa_NNPDF30NNLO_Zee_Pt0_70_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363389.Sherpa_NNPDF30NNLO_Zee_Pt0_70_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363390.Sherpa_NNPDF30NNLO_Zee_Pt0_70_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363391.Sherpa_NNPDF30NNLO_Zee_Pt70_140_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363392.Sherpa_NNPDF30NNLO_Zee_Pt70_140_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363393.Sherpa_NNPDF30NNLO_Zee_Pt70_140_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363394.Sherpa_NNPDF30NNLO_Zee_Pt140_280_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363395.Sherpa_NNPDF30NNLO_Zee_Pt140_280_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363396.Sherpa_NNPDF30NNLO_Zee_Pt140_280_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363397.Sherpa_NNPDF30NNLO_Zee_Pt280_500_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363398.Sherpa_NNPDF30NNLO_Zee_Pt280_500_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363399.Sherpa_NNPDF30NNLO_Zee_Pt280_500_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363400.Sherpa_NNPDF30NNLO_Zee_Pt500_700_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363401.Sherpa_NNPDF30NNLO_Zee_Pt500_700_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363402.Sherpa_NNPDF30NNLO_Zee_Pt500_700_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363403.Sherpa_NNPDF30NNLO_Zee_Pt700_1000_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363404.Sherpa_NNPDF30NNLO_Zee_Pt700_1000_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363405.Sherpa_NNPDF30NNLO_Zee_Pt700_1000_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363406.Sherpa_NNPDF30NNLO_Zee_Pt1000_2000_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363407.Sherpa_NNPDF30NNLO_Zee_Pt1000_2000_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363408.Sherpa_NNPDF30NNLO_Zee_Pt1000_2000_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363409.Sherpa_NNPDF30NNLO_Zee_Pt2000_E_CMS_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363410.Sherpa_NNPDF30NNLO_Zee_Pt2000_E_CMS_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363411.Sherpa_NNPDF30NNLO_Zee_Pt2000_E_CMS_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361476.Sherpa_CT10_Zmumu_Mll10to40_Pt0_70_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361477.Sherpa_CT10_Zmumu_Mll10to40_Pt0_70_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361479.Sherpa_CT10_Zmumu_Mll10to40_Pt70_140_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361480.Sherpa_CT10_Zmumu_Mll10to40_Pt140_400_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361481.Sherpa_CT10_Zmumu_Mll10to40_Pt140_400_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361482.Sherpa_CT10_Zmumu_Mll10to40_Pt400_E_CMS_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361483.Sherpa_CT10_Zmumu_Mll10to40_Pt400_E_CMS_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363364.Sherpa_NNPDF30NNLO_Zmumu_Pt0_70_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363365.Sherpa_NNPDF30NNLO_Zmumu_Pt0_70_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363366.Sherpa_NNPDF30NNLO_Zmumu_Pt0_70_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363367.Sherpa_NNPDF30NNLO_Zmumu_Pt70_140_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363368.Sherpa_NNPDF30NNLO_Zmumu_Pt70_140_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363369.Sherpa_NNPDF30NNLO_Zmumu_Pt70_140_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363370.Sherpa_NNPDF30NNLO_Zmumu_Pt140_280_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363371.Sherpa_NNPDF30NNLO_Zmumu_Pt140_280_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363372.Sherpa_NNPDF30NNLO_Zmumu_Pt140_280_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363373.Sherpa_NNPDF30NNLO_Zmumu_Pt280_500_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363374.Sherpa_NNPDF30NNLO_Zmumu_Pt280_500_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363375.Sherpa_NNPDF30NNLO_Zmumu_Pt280_500_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363376.Sherpa_NNPDF30NNLO_Zmumu_Pt500_700_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363377.Sherpa_NNPDF30NNLO_Zmumu_Pt500_700_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363378.Sherpa_NNPDF30NNLO_Zmumu_Pt500_700_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363379.Sherpa_NNPDF30NNLO_Zmumu_Pt700_1000_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363380.Sherpa_NNPDF30NNLO_Zmumu_Pt700_1000_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363381.Sherpa_NNPDF30NNLO_Zmumu_Pt700_1000_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363382.Sherpa_NNPDF30NNLO_Zmumu_Pt1000_2000_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363383.Sherpa_NNPDF30NNLO_Zmumu_Pt1000_2000_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363384.Sherpa_NNPDF30NNLO_Zmumu_Pt1000_2000_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363385.Sherpa_NNPDF30NNLO_Zmumu_Pt2000_E_CMS_CVetoBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363386.Sherpa_NNPDF30NNLO_Zmumu_Pt2000_E_CMS_CFilterBVeto.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.363387.Sherpa_NNPDF30NNLO_Zmumu_Pt2000_E_CMS_BFilter.s2726_r7676_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361485.Sherpa_CT10_Ztautau_Mll10to40_Pt0_70_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361486.Sherpa_CT10_Ztautau_Mll10to40_Pt70_140_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361487.Sherpa_CT10_Ztautau_Mll10to40_Pt70_140_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361488.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361489.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BFilter.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361490.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BVeto.s2608_r7772_p2613_output.root"
+sherpaZjets="$sherpaZjets $INPUT_PATH/user.othrif.361491.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BFilter.s2608_r7772_p2613_output.root"
+
+mgZjets="$INPUT_PATH/user.othrif.363123.MGPy8EG_N30NLO_Zmumu_Ht0_70_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363124.MGPy8EG_N30NLO_Zmumu_Ht0_70_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363125.MGPy8EG_N30NLO_Zmumu_Ht0_70_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363126.MGPy8EG_N30NLO_Zmumu_Ht70_140_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363127.MGPy8EG_N30NLO_Zmumu_Ht70_140_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363128.MGPy8EG_N30NLO_Zmumu_Ht70_140_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363129.MGPy8EG_N30NLO_Zmumu_Ht140_280_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363130.MGPy8EG_N30NLO_Zmumu_Ht140_280_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363131.MGPy8EG_N30NLO_Zmumu_Ht140_280_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363132.MGPy8EG_N30NLO_Zmumu_Ht280_500_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363133.MGPy8EG_N30NLO_Zmumu_Ht280_500_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363134.MGPy8EG_N30NLO_Zmumu_Ht280_500_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363135.MGPy8EG_N30NLO_Zmumu_Ht500_700_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363136.MGPy8EG_N30NLO_Zmumu_Ht500_700_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363137.MGPy8EG_N30NLO_Zmumu_Ht500_700_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363138.MGPy8EG_N30NLO_Zmumu_Ht700_1000_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363139.MGPy8EG_N30NLO_Zmumu_Ht700_1000_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363140.MGPy8EG_N30NLO_Zmumu_Ht700_1000_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363141.MGPy8EG_N30NLO_Zmumu_Ht1000_2000_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363142.MGPy8EG_N30NLO_Zmumu_Ht1000_2000_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363143.MGPy8EG_N30NLO_Zmumu_Ht1000_2000_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363144.MGPy8EG_N30NLO_Zmumu_Ht2000_E_CMS_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363145.MGPy8EG_N30NLO_Zmumu_Ht2000_E_CMS_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363146.MGPy8EG_N30NLO_Zmumu_Ht2000_E_CMS_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363147.MGPy8EG_N30NLO_Zee_Ht0_70_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363148.MGPy8EG_N30NLO_Zee_Ht0_70_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363149.MGPy8EG_N30NLO_Zee_Ht0_70_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363150.MGPy8EG_N30NLO_Zee_Ht70_140_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363151.MGPy8EG_N30NLO_Zee_Ht70_140_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363152.MGPy8EG_N30NLO_Zee_Ht70_140_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363153.MGPy8EG_N30NLO_Zee_Ht140_280_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363154.MGPy8EG_N30NLO_Zee_Ht140_280_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363155.MGPy8EG_N30NLO_Zee_Ht140_280_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363156.MGPy8EG_N30NLO_Zee_Ht280_500_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363157.MGPy8EG_N30NLO_Zee_Ht280_500_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363158.MGPy8EG_N30NLO_Zee_Ht280_500_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363159.MGPy8EG_N30NLO_Zee_Ht500_700_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363160.MGPy8EG_N30NLO_Zee_Ht500_700_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363161.MGPy8EG_N30NLO_Zee_Ht500_700_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363162.MGPy8EG_N30NLO_Zee_Ht700_1000_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363163.MGPy8EG_N30NLO_Zee_Ht700_1000_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363164.MGPy8EG_N30NLO_Zee_Ht700_1000_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363165.MGPy8EG_N30NLO_Zee_Ht1000_2000_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363166.MGPy8EG_N30NLO_Zee_Ht1000_2000_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363167.MGPy8EG_N30NLO_Zee_Ht1000_2000_BFilter.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363168.MGPy8EG_N30NLO_Zee_Ht2000_E_CMS_CVetoBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363169.MGPy8EG_N30NLO_Zee_Ht2000_E_CMS_CFilterBVeto.s2726_r7676_output.root"
+mgZjets="$mgZjets $INPUT_PATH/user.othrif.363170.MGPy8EG_N30NLO_Zee_Ht2000_E_CMS_BFilter.s2726_r7676_output.root"
+
+
+mgWjets="$INPUT_PATH/user.othrif.361520.MadGraphPythia8EvtGen_A14NNPDF23LO_Wenu_Np0.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361521.MadGraphPythia8EvtGen_A14NNPDF23LO_Wenu_Np1.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361522.MadGraphPythia8EvtGen_A14NNPDF23LO_Wenu_Np2.s2608_r7772_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361523.MadGraphPythia8EvtGen_A14NNPDF23LO_Wenu_Np3.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361524.MadGraphPythia8EvtGen_A14NNPDF23LO_Wenu_Np4.s2608_r7772_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361525.MadGraphPythia8EvtGen_A14NNPDF23LO_Wmunu_Np0.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361526.MadGraphPythia8EvtGen_A14NNPDF23LO_Wmunu_Np1.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361527.MadGraphPythia8EvtGen_A14NNPDF23LO_Wmunu_Np2.s2608_r7772_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361528.MadGraphPythia8EvtGen_A14NNPDF23LO_Wmunu_Np3.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361529.MadGraphPythia8EvtGen_A14NNPDF23LO_Wmunu_Np4.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361530.MadGraphPythia8EvtGen_A14NNPDF23LO_Wtaunu_Np0.s2608_r7772_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361531.MadGraphPythia8EvtGen_A14NNPDF23LO_Wtaunu_Np1.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361532.MadGraphPythia8EvtGen_A14NNPDF23LO_Wtaunu_Np2.s2608_r7772_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361533.MadGraphPythia8EvtGen_A14NNPDF23LO_Wtaunu_Np3.s2608_r7725_p2613_output.root"
+mgWjets="$mgWjets $INPUT_PATH/user.othrif.361534.MadGraphPythia8EvtGen_A14NNPDF23LO_Wtaunu_Np4.s2608_r7725_p2613_output.root"
+EOF
+
+printf "\n\nRunning over data...\n\n"
+#analyze $OUTPUT_FOLDER data $DATA
+printf "\nDone running over data...\n\n"
+
+printf "Running over MC...\n"
+analyze $OUTPUT_FOLDER ttW $ttW 

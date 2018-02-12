@@ -1,0 +1,1 @@
+source Analyzer/scripts/runtest.sh TESTttZ

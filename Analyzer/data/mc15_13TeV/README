@@ -1,0 +1,595 @@
+2014-09-11: NOTE THAT THIS README FILE IS NOT ENSURED TO BE 101% UP-TO-DATE ON ALL FRONTS
+	    THERE IS THEN THE WIKI (https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/SUSYSignalUncertainties) 
+	      WHICH MIGHT ALSO NOT BE 101% UP-TO-DATE
+	    THE FINAL WORD IS IN THE PYTHON SCRIPTS. RUNNING WITH '-h' SHOULD SHOW WHAT IS CURRENT STATUS. 
+	    
+##################################################################
+#
+#
+#   README file for calculating SUSY Signal uncertainties
+#   using the SignalUncertaintiesUtils package. 
+#   NB. The '2012' version is completely rewritten!
+#
+#	22-01-2012
+#	( Author : Robin van der Leeuw - rvdleeuw@nikhef.nl)
+#
+#	17-09-2014  : Extensive updates
+#         Borge Kile Gjelsten - b.k.gjelsten@fys.uio.no
+#   
+#   The Package is meant to first calculate the cross-sections
+#   (at either NLO or NLL+NLO) with Prospino2.1 resp. NLL-fast, 
+#   after which the calculation of the uncertainties 
+#   of the NLO Prospino output is done, and combined with the
+#   NLL-fast output (which already includes uncertainties)
+#   it produces a TTree with all available information. 
+#   
+#   SignalUncertaintiesUtils consists of 2 main scripts: 
+#   * SUSYCrossSectionSubmit.py 
+#   * SUSYSignalCalc.py
+#
+#   SUSYCrossSectionSubmit.py uses Prospino and NLL-fast 
+#   (both provided in the Package, see the directories
+#   ProspinoSignalUncertaintiesUtils resp. NLL_Fast_SignalUncertaintiesUtils)
+#   to do the calculations. See (1) below for more detailed info. 
+#
+#   SUSYSignalCalc.py uses the output of SUSYCrossSectionSubmit.py 
+#   to calculate the theoretical uncertainties on the 
+#   cross-section (be it NLO or NLL+NLO) and make a TTree. 
+#   For more info, see (2) below. 
+#
+#
+#   For more info on this package, visit
+#   https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/SUSYSignalUncertainties
+#   
+#   For more info on Prospino, please visit: 
+#   http://www.thphys.uni-heidelberg.de/~plehn/index.php?show=prospino
+#   All credits for Prospino go to Tilman Plehn et.al. 
+#
+#   For more info on NLL-fast, please visit: 
+#   http://web.physik.rwth-aachen.de/service/wiki/bin/view/Main/SquarksandGluinos
+#   Credits to Michael Kraemer et al. 
+#   
+#   Big thanks to Borge Kile Gjelsten for including the grid support.
+#   
+#   
+#   For questions and/or comments, please send an email to 
+#   Ricardo Neves (rneves@nyu.edu) and/or
+#   Robin van der Leeuw (rvdleeuw@nikhef.nl)
+#   Borge Kile Gjelsten (b.k.gjelsten@fys.uio.no) 
+#
+####################################################
+####################################################
+
+  To check out: 
+  svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Tools/SignalUncertaintiesUtils/trunk SignalUncertaintiesUtils
+
+  To compile, run 
+	python install.py
+  this will copy Prospino.tgz to the current directory, unpack it, and compile both Prospino and NLL-Fast.
+  Compilation of NLL-Fast is done by gfortran (was g77) - change this in 'intall.py' if necessary.   
+
+  N.B.: The compilation of Prospino should be done WITHOUT Athena! So please don't setup 
+  Athena when running python install.py ! 
+ 
+####################################################
+ 
+  N.B. Versions of Prospino and NLL-Fast on which this tool is based: 
+	- Prospino2.1, version 23-09-12 
+	- NLL-Fast2.11
+
+
+####################################################
+####################################################
+
+ (1)    SUSYCrossSectionSubmit.py
+
+   Script to read SLHA files and produce files with cross-sections,
+   either by using the NLL-fast program for NLL+NLO cross-section
+   and uncertainty interpolation, or Prospino NLO cross-section
+   calculations for processes with masses which are not available
+   with the NLL-fast interpolation. 
+
+   The script is written for easy Prospino job submission to
+   the lxbatch system, using Ganga
+   (https://twiki.cern.ch/twiki/bin/view/AtlasComputing/FullGangaAtlasTutorial)
+   or grid submission using prun (https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PandaAthena)
+
+   The NLL-fast calculations are fast (it's in the name..), these will
+   be done locally.
+  
+   It expects all les houches files (SLHA files) which need to 
+   be parsed to be in one directory. Please make sure you 
+   have one directory with all files in there. 
+
+   The Prospino version is Prospino2.1, of 23-09-12. 
+   Both Prospino and NLL-fast use CTEQ6 as default PDFs.
+
+   2014 updates/changes (Borge): 
+   - Energies beyond 7 and 8 TeV implemented: 
+     - NLL-fast: at 7, 8 and 13 TeV    :  has "full" squark/gluino coverage
+     - NLL-fast: at 14, 33 and 100 TeV : coverage where either squark or gluinos are decoupled
+     - Prospino: can be used at any LHC energies
+   - Can use Prospino at LO for testing, obtaining approximate results quickly (can then be done locally)
+   - Option execute in a run directory different from the install directory
+   - Improved info system (overview table)
+   - Code streamlining 
+
+###################################
+
+
+
+**********   To run:  *********
+   NOTE: THE DETAILS BELOW MAY NOT BE FULLY UP-TO-DATE. 
+         FOR THE VERY LATEST OPTIONS, ISSUE  'python SUSYCrossSectionSubmit.py -h'
+ 
+
+   python (ganga)  SUSYCrossSectionSubmit.py --dir $DIR [ --processes $PROCS  --types $TYPES --outputdir $OUTPUTDIR 
+						--decouple $DCPLPROCS  --tev $ENERGY  --ipart1 $IPART1  --ipart2 $IPART2 
+						--batch  --queue $QUEUE 
+						--prun  --griduser $NAME  --excludedSites $SITES  --dsver $DSver  --dspost $DSpost   
+						--dryprun  --noNLL --noprospino --nomass --local --verbose --help                   ]
+  
+
+    Where the options are:  [Issue 'python SUSYCrossSectionSubmit.py --help'  for a fully up-to-date list of options]
+    -d, --dir $DIR		- Provide the directory containing the slha files to be parsed
+    -o, --outputdir $OUTPUT	- Provide the name of the output directory $OUTPUT. Default is Output.
+    --types $TYPES 	 	- Choose which run types to submit for Prospino. Choice: 1 or more from "als,csca,msca,cpdf,mpdf" (...)
+ 	 	 	          ... (alpha_s, scale variations on CTEQ, scale variations on MSTW, CTEQ pdf variations, MSTW pdf variations)(...)
+ 	 	 	          ... If none is given, submits all.
+    --processes $PROCS 	 	- Choose which processes you want to run over. Choice: One or more from "sg,gg,ss,sb,tb,bb,ns,ng,nn,ll".(...)
+ 	 	 	     	  ... Default: run over "sg,gg,ss,sb,tb,bb,ns,ng".
+    --subprocesses $PROCS       - Similar, you can directly select e.g. nn23,nn25,nn27,nn35,nn37 [this is equivalent to using --ipart1/2, see below]
+    --decouple $PROCS 	 	- If squarks/gluinos are decoupled (i.e. Simplified Models), "gg"/"sb" can be calculated by using this argument
+    --tev $ENERGY               - Set the energy, ex: '--tev 13'  (NLL-fast takes 7,8,13,14,33,100 TeV)
+    --noNLL   		 	- Do not use the NLL-fast tool for interpolation.
+    --noprospino		- Do not use Prospino. (Will then typically not be calculated if not available in NLL-fast.)
+    --batch			- Submit the Prospino jobs to batch system. Standard choice is LSF(). Change this in the code if needed.
+    --queue $QUEUE		- Choice of queue of the batch system. Default: '2nd'
+    --prun 	 	 	- Run on grid using prun. This needs grid and pathena to be setup. Also use option --nickname.
+    --griduser $NAME 	        - Provide your griduser (if prun) [if at lxplus, finds it automatically], which is used for the output DS.
+    --dryprun 	 	        - Dry run the grid submission, i.e. the final submission is omitted.
+    --excludedSites $SITES      - Provide list of excluded grid sites.
+    --dspost $DSpost 	 	- Provide suffix of output DS name for grid submission.
+    --dsver $VER 	 	- Provide version tag for grid submission, default is "_v1".
+    --ipart1                    - If running over 'ns','ng','ll' or 'nn', default is to run over all configurations. If one wants to just calculate (...)
+				  ... specific subprocesses, use --ipart1 for the first sparticle. Separate several ipart1s with a comma. (...). 
+				  ... See Prospino (prospino_main.f90) for explanation of ipart1_in, and see example below.
+    --ipart2                    - If running over 'ns','ng','ll' or 'nn', default is to run over all configurations. If one wants to just calculate (...)
+				  ... specific subprocesses, use --ipart2 for the second sparticle. Separate several ipart2s with a comma. This is only (...)
+				  ... useful for 'nn'. One can use '--ipart2 -1' to specify all possible second particles for first particle given by '--ipart1'.(...) 
+				  ... See Prospino (prospino_main.f90) for explanation of ipart2_in, and see example below.
+    --local			- Do not submit to batch or grid, but run locally. N.B. This can take (very) long when running Prospino. Suggested to only use for NLL-fast.
+    --verbose			- Print all: output level == VERBOSE
+    -h, --help			- Prints help message
+
+
+******* Example *******
+
+
+    Often one will want to run without too many options, in the following way:
+  
+    python SUSYCrossSectionSubmit.py --dir $DIR [--processes $PROC]
+    --processes is only needed when one does not want to run over all of the processes involving squarks or gluinos (sg,gg,ss,sb,tb,bb,ns,ng),
+      or when one wants to run over gaugino-gaugino ('nn') or over sleptons ('ll'). 
+
+
+    There are two options to run large jobs over many points, where Prospino is needed: 
+	- running over the grid.
+	- running over batch system. 
+    Both assume the required SLHA files are in one folder (here assumed to be 'slhafiles').
+    * If Prospino is not needed (i.e. one only looks at squark and gluino production between 200 GeV and 2TeV), 
+    one can run locally with only NLL-fast. As an example, run locally over all slha files in dir. slhafiles. The tag 'noprospino'
+    makes sure Prospino is not called (but you will get a warning when this means you are missing some points). 
+	
+	python SUSYCrossSectionSubmit.py --dir slhafiles  --tev 8  --local --noprospino
+
+
+    * Running over the grid: 
+    First setup your grid variables and setup pathena, see https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PandaAthena. 
+    To run over all 'nn' processes, use: 
+
+	python SUSYCrossSectionSubmit.py --dir slhafiles  --tev 8  --prun --griduser <NAME> --processes nn
+
+    or, if one wants to have a specific process, type and version tag:
+
+	python SUSYCrossSectionSubmit.py --dir slhafiles  --tev 8  --prun --griduser <NAME> --processes nn --ipart1 2,4 --ipart2 3,5 --types msca,csca --dsver v2
+
+    which will calculate the CTEQ and MSTW scale variations (csca, msca) of processes nn23 and nn45 (given by ipart), and adds a version tag '_v2' on all output. 
+    <NAME> is your griduser, which is needed for your output DS (user.<NAME>. ...) 
+
+   
+    * Running over batch: 
+	 - First setup ganga, see https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/FullGangaAtlasTutorial
+
+    Then, to submit to lxbatch queue '1nw', submit via: 
+
+	ganga SUSYCrossSectionSubmit.py  --dir slhadir  --tev 8  --batch --queue 1nw  
+    
+    where the same options as above can be added (not --dsver, which is only used for grid submission).
+
+    One can find a directory with some example slha files at /afs/cern.ch/user/r/rvdleeuw/public/ExamplesForSignalUncertaintiesUtils/Test_SLHA/.  
+
+
+
+*****  What will happen when running is the following:  ***** 
+
+        - The directory $DIR will be used to look for slha files. If running with nll-fast interpolation 
+	(i.e. if one runs without the --noNLL flag), the files will be used to check the
+	masses of the squarks, gluino's, stops and sbottoms. 
+	
+	- If an slha file has particles in the availabe mass-range of NLL-fast 
+	AND the user-defined list of processes contains one of the available processes
+	( gg,sg,sb,ss,tb,bb : gluino-gluino, squark-gluino,squark-squark, squark-antisquark,
+	stop-pair, sbottom-pair) the NLL-fast tool will be used to obtain the NLL+NLO
+	cross-section and uncertainties. The output will be written to $OUTPUTDIR (default: pwd/Output) 
+	
+	- If this is not the case, Prospino2.1 will be used to calculate cross-sections. 
+	This will be done while variying either the CTEQ PDFs, MSTW PDFs, Factorization/Ren. scale (for 
+	both CTEQ and MSTW central value), or strong coupling constant. The type of variation can 
+	be set with --types $TYPES. Default is to run all.
+	
+	- The script will make new directories in ProspinoSignalUncertaintiesUtils/Prospino_results
+	one for each slha file, in which will be written: 
+	* runprospino.sh: executable
+	* soft links to the prospino executable and the PDFs
+	* prospino.in.les_houches: the needed slha file will be copied to this file, to be read in by Prospino.
+
+		- runprospino.sh has as input arguments: ./runprospino $proc $ipart1 $ipart2, with $proc the process, 
+		and $ipart1 (2) the identifier of the particles (if you have gaugino-squark production, there are 8 
+		possibilities. $ipart1 identifies them.)
+
+	BATCH SUBMISSION
+	-  If you have requested to submit to batch, ganga will be used to send a job to the batch system for each process. 
+	Each of these jobs run over all requested variations, thus it might take ~8 hours per job. The queue 
+	can be chosen by using the --queue option. Default is '2nd'.  
+	The script assumes running over LXBATCH. If one wants to use another system, please change line 364
+	from LSF() to your choice. 
+
+
+	- If you have used '--local', it will not use a batch system or grid, but run locally the Prospino jobs. This is
+	NOT recommended for large use!
+
+	- If you have not requested to submit, the script will do everything but just leave 
+	the submitting out.  
+
+	- The output of the jobs will be sent to the $OUTPUTDIR. They will be called
+	prospino_gg_slha_200_300.txt_cpdf.dat for an output file of process: gg, slha file:
+	 'slha_200_300.txt',	and CTEQ pdf variations. 
+		* There are 5 types, and thus 5 output files will be produced:
+			+ 'csca': scale variations on CTEQ central value PDF 
+			+ 'msca': scale variations on MSTW central value PDF 
+			+ 'cpdf': PDF variations on CTEQ central value PDF 
+			+ 'mpdf': PDF variations on MSTW central value PDF 
+			+ 'als': Alpha_s variations
+
+	GRID SUBMISSION
+	- If you have requested grid submission by using --prun, prun will be used for submission. First the Prospino directory
+	will be tar-ed, then per susy point and per subprocess a job is sent to the grid. The output filenames will be
+        user.<NAME>.<slha_name>_<types>_<date>_<version>/ . The output datasets will be added to a list 
+	DSout-dir_<DIR>-procs_<PROCESSES-types_<TYPES>-<DATE>-<VERSION>.txt, such that retrieval will be easy. 
+
+	
+	REMARKS:
+	- For Simplified Models with decoupled squarks or gluinos (squark mass / gluino mass set to infinity) there are 
+	only a limited number of processes available: for decoupled squarks, only gluino-pair production is possible, 
+	while for decoupled gluino's only squark-antisquark is possible. To calculate these correctly, use the argument 
+	--decouple. This takes as argument the processes you want to calculate in such a decoupled limit - one can
+	choose from "gg" and "sb".
+
+	- If you want to calculate specific subprocesses for 'ns','ng','ll' and/or 'nn' - instead of calculating all
+	available configurations, which are 30 (!) for 'nn' - one can use the --ipart1 and --ipart2 input arguments. 
+	These work as follows: If you would like to just produce 'ns3' and 'ns4' (chi_3^{0}-squark and chi_4^{0}-squark) 
+	use as input arguments 
+		--processes ns --ipart1 3,4 
+	If you would like to calculate 'nn24','nn45' and 'nn37', use
+		--processes nn --ipart1 2,4,3 --ipart2 4,5,7
+	Calculating processes "nn" together with "ns" ("ng","ll") can be done as well: for the latter, ipart2 will be 
+	automatically taken as 1. Thus
+		--processes ns,ng,nn --ipart1 2,3 --ipart2 4,5 
+	would calculate: ns2,ns3,ng2,ng3,nn24,nn25. 
+	N.B. Please make sure the length of arguments for ipart1 is the same as for ipart2! 
+
+	- When all is done, one can proceed to SUSYSignalCalc.py to produce a TTree with 
+	all cross-sections and uncertainties!
+ 
+
+####### It is recommended to TEST first, i.e. without submitting to any batch system, just to see how it works, e.g.:
+	
+	* copy one file slha to a tmp directory: tmp/
+
+	python SUSYCrossSectionSubmit.py --dir tmp/ --processes gg,tb --types als,csca --local
+	
+	(2014: to use a selection of slha files in a dir, you can use the --slice islha0,isalh1 option)
+    
+	* This will run the one slha file, for gluino-pair and stop-pair processes,
+	check which one can be run with NLL-fast, and will run Prospino locally over 
+ 	those processes which cannot be parsed by NLL-fast, for alpha_s and CTEQ scale variations.
+	(Note: Prospino locally can last for hours. 2014: in testing phase you can add '--lo' to run LO only, 
+	that's considerably quicker. There is now also a table produced, showing which processes are to 
+	be done by NLLfast and which are to be done by Prospino.) 
+
+ 	* Check the output in the Output directory. If you want to clean the Prospino_results directory, 
+	please just do:
+	rm -rf ProspinoSignalUncertaintiesUtils/Prospino_results. 
+	( No cleaning script is available, to make sure one does not accidentally remove all..)
+
+	* For testing grid submission, try using --dryrun:
+
+	python SUSYCrossSectionSubmit.py --dir tmp/ --processes gg,tb --types als,csca --prun --griduser <NAME> --dryprun
+
+
+####### Option to separate RUNDIR from BINDIR(=INSTALLDIR)
+	Running these scripts produces a certain amount of outputs. 
+	It might be an idea to separate the RUNDIR from the BINDIR (=where you installed), 
+	especially if you calculate cross-section for many different SUSY grids. 
+	Since Sep 2014 this is now possible. 
+	Ex. (from the BINDIR): 
+	  mkdir rundir ; cd rundir; mkdir gridX ; cd gridX 
+	  python ../../SUSYCrossSectionSubmit.py  <options>
+
+
+
+####### Processes: 
+                * 'sg': squark-gluino
+                * 'gg': gluino-gluino
+                * 'ss': squark-squark
+                * 'sb': squark-antisquark
+                * 'bb': sbottom-antisbottom (2 processes!)
+                * 'tb': stop-antistop (2 processes!)
+                * 'bb': sbottom-antisbottom (2 processes!)
+                * 'ng': gaugino-gluino (8 processes!)
+                * 'ns': gaugino-squark (8 processes!)
+                * 'nn': gaugino-gaugino (30 processes!)
+                * 'll': slepton-slepton (20 processes!)
+
+
+
+######  Tools/ OrganiseFromGrid.py:
+
+	There is now a tool which helps organising the retrieved output from Panda. 
+	Once you have used =dq2-get= to retrieve all your output, you can use =OrganiseFromGrid.py= 
+	in the =Tools/= directory to organise all the output in the correct way. If your grid 
+	output is in the directory =OutputDir=, just use it like this: 
+
+	python OrganiseFromGrid.py --from OutputDir --to NewDir
+
+	Now all the =.dat= files will be put into the <NewDir> directory in the correct format. 
+	You do not have to untar the files yourself, the tool does this for you. 
+
+
+######  Tools/ MakeDetailedOverviewAndSubprocessResubmissionScript.py
+	New script (since Sep 2014), to be run after OrganiseFromGrid.
+	Compares a list of slhas (typically the entire dir_slha) and the desired subprocesses with the Prospino output files: 
+	1) Makes a very detailed table showing the status of all variation files (all types; cpdf, ..)
+	2) Makes a script to cleanly resubmit to the grid any missing slha x subprocess x type(s)
+	(Workmode: source the resubmit script, wait half a day, dq2get, OrganiseFromGrid.py, MakeDetailedOv...Script.py ; 
+	 then if needed source the resubmission script, etc.  When all is fine, proceed to SUSYSignalCalc.py (below).)
+	Note: the script imports methods from lib/ so this directory needs to be available. 
+	 
+
+######  Tools/ FilterEffFromLog.py
+	When generator filters have been used, we need to know how many events per subprocess have been rejected. 
+	This is possible if the SusySubprocessFinder (from GeneratorFilters.GeneratorFiltersConf) is used in the evgen jobOptions. 
+	FilterEffFromLog.py looks through the evgen log files (need to be downloaded), digs out this information 
+	and provides the efficiency filters per subprocess. 
+	(The script script is still rather messy, but does what it should. It is developed on Herwigpp samples.)
+	Note: the script imports methods from lib/ so this directory needs to be available. 
+
+
+
+####################################################
+####################################################
+
+ (2)    SUSYSignalCalc.py
+
+   Script to parse all output from SUSYCrossSectionSubmit.py
+   to make a TTree with all Cross-sections and uncertainties
+   for the available points and processes + a table + a python dict + a SUSYTools file
+
+   It needs a naming format for the prospino output and/or the NLL-fast output
+   depending on which files are available). The script will then open the
+   files in the given directory, check which ones are Prospino output 
+	- From these the uncertainties are calculated 
+   and which ones are NLL-fast output:
+	- From these no calculations have to be done, the uncertainties are just read in. 
+
+   When all files are parsed, a TTree is produced containing an entry for each 
+   grid-point (initial slha-file) and each process. For each entry, the following
+   variables are available: 
+	
+
+     * finalState		- the final state. For the identifiers, please see below. 
+     * crossSection		- the best available cross-section (NLL+NLO where available). This is average between CTEQ and MSTW, see twiki for more info.
+     * Tot_error                - the total signal uncertainty (symmetric). 
+     * Scale_error_cteq_up	- ren./fact. scale uncertainty upwards on CTEQ cross-section
+     * Scale_error_cteq_down	- ren./fact. scale uncertainty downwards on CTEQ cross-section
+     * Scale_error_mstw_up	- ren./fact. scale uncertainty upwards on MSTW cross-sections
+     * Scale_error_mstq_down	- ren./fact. scale uncertainty downwards on MSTW cross-sections
+     * PDF_error_cteq_up	- CTEQ PDF uncertainty upwards 
+     * PDF_error_cteq_down	- CTEQ PDF uncertainty downwards
+     * PDF_error_mstw_up	- MSTW PDF uncertainty upwards 
+     * PDF_error_mstq_down	- MSTW PDF uncertainty downwards
+     * K			- K-factor between CTEQ LO and best available cross-section
+     * AlphaS_error_up		- uncertainty from alpha_s : upwards
+     * AlphaS_error_down	- uncertainty from alpha_s : down
+
+################################################
+
+	***** Usage: *****
+
+   - NB: it needs pyRoot: please setup either athena or your favourite pyRoot.
+	
+   - python SUSYSignalCalc.py --dir $DIR  --slhaformat $SLHAFORMAT  --varnames $VARNAMES [--prospformat $PROSPFORMAT  --nllformat $NLLFORMAT
+						  --output $OUTPUTFILENAME --verbose --help]
+	
+	Options: 
+
+	-d, --dir $DIR	 	 	Provide the directory containing the files to be parsed
+	-o, --output $OUTPUTFILENAME	Provide the name of the output rootfile. Default is output.root
+	--varnames $VARNAMES	   	Provide the names of the variables, separated by a comma. e.g. 'm0,m12'
+	--slhaformat $SLHAFORMAT  	Provide the format of the names of the slha files, ...
+	 	 	 		... with an * where the variables of the grid points should be.
+   		 	 	 		E.g.: --slhaformat "slha_*_*.txt" for files like "slha_200_300.txt".
+						This is the recommended format to use. 
+						N.B.: The quotes " are important! Wildcards can get out of hand :) 
+	--prospformat $PFORMAT	  	Provide the format of the names of the Prospino output files, ...
+	 	 	 		... with an * where the variables (finalstate, values, type of running) should be.
+   		 	 	 		E.g.: --prospformat "prospino_*_*_*_*.dat" for files like "prospino_sg_200_300_cpdf.dat".
+						Use only if your prospino/nll output was not produced by SUSYCrossSectionSubmit.
+						N.B.: The quotes " are important! Wildcards can get out of hand :) 
+	--nllformat $NLLFORMAT	  	Provide the format of the names of the NLL-fast output files, ...
+ 		 	 	  	... with an * where the variables (finalstate, values,cteq/mstw) should be.
+   	 		 	 		E.g. : --nllformat "nll-fast_*_*_*_*.out" for files like "nll-fast_sg_200_300_cteq.out".
+						Use only if your prospino/nll output was not produced by SUSYCrossSectionSubmit.
+						N.B.: The quotes " are important! Wildcards can get out of hand :) 
+	--verbose 	 	  	Print all: output level == VERBOSE
+	--help  	 	  	Prints this help message
+
+
+
+        
+     ***** How it works *****
+
+   - The directory DIR will be read in, and will be searched for any file which is either of the form 
+     of your prospino-format $PFORMAT or nll-fast format $NLLFORMAT. 
+	* How this works: 
+		- Use --shlaformat to give the format of the naming of the slha files: 
+		  If you have used SUSYCrossSectionSubmit.py to produce all output files, the prospino- and nll-fast 
+		  output files will have the format "prospino_$proc_$slhaname_$type.dat" resp "nll-fast_$proc_$slhaname_$type.out"
+		  where $proc is the process, $type the type, and $slhaname the name of the shla file. 
+		  If your slha files are for instance: slha_200_300.txt (e.g. for m0=200, m1/2=300), use --slhaformat "slha_*_*.txt"
+		  Using this format, the prospino and nll-fast output filename formats are automatically known, and do not
+		  have to be set. This is the recommended way to go!
+	
+	 	- If really needed, one can also give the format of your prospino output separately, e.g. --prospformat "prospino_*_slha_*_*.txt_*.dat" 
+		  if you have files like "prospino_sg_slha_200_300.txt_csca.dat" 
+		  for a sq-gl process from slha file "slha_200_300.txt" and a CTEQ scale variation.
+		-  If really needed, one can also give the format of your nll-fast output separately, e.g. --nllformat "nll-fast_*_slha_*_*.txt_*.dat" 
+		  if you have files like "nll-fast_sg_slha_200_300.txt_cteq.dat" 
+		  for a sq-gl process, slha file "slha_200_300.txt" with cteq PDFs.  
+	* NB: It assumes ALL Prospino output ends on ".dat", and ALL NLL output ends on ".out".
+
+   - Once found, the process ('sg'), variables (e.g. 200, 300) and type ('csca' / 'cteq') are 
+     put in a list for further use. 
+	* NB. If you have 'old-style' Prospino files, from tag 00-00-02, with types 'sca' and 'pdf' instead of 'csca' and 'cpdf', 
+		these are automatically interpreted correctly, i.e. no renaming from 'sca' to 'csca' in necessary. 
+
+   - For each Prospino output file, the cross-sections are read in by the 'loading' function, 
+     and the uncertainty is calculated by 'calc_sca', 'calc_pdf','calc_als' depending
+     on the input file. These are all stored in an ordered list.
+    
+   - For each NLL-fast output file, the cross-section and uncertainties are read in by the
+     'NLLfastReader' function, for CTEQ and MSTW files separately.
+     These are all stored in an ordered list. (appended to the Prospino one).
+ 
+   - These lists are used to make the 'final' CrossSections and uncertainties. 'getCrossSectionAndPDFuncert'
+     calculates for each entry the CrossSection and PDF uncertainty.
+    
+   - The function 'makeTree' then uses pyRoot to make a TTree with all values. 
+
+   2014 additions: 
+   - New output: A neat xsec table allowing some overview, a python dict, the SUSYTools text file, 
+     as well as a compact table showing the status/completeness at the level of Prospino/NLL-fast output files. 
+   - Added interface to include generator-filter efficiencies (obtained by Tools/FilterEffFromLog.py, 
+     and relying on the usage of the SusySubprocessFinder (from GeneratorFilters.GeneratorFiltersConf) 
+     being used):
+   - A few new variables are added to the ROOT file (optional)
+   - Advanced options (hacks) to (approximately) deal with problematic subprocesses (mostly relying on info picked from evgen log files)
+
+
+     ***** EXAMPLE: *****
+
+     As an example there is a directory with NLL-fast and Prospino outputfiles at 
+     /afs/cern.ch/user/r/rvdleeuw/public/ExamplesForSignalUncertaintiesUtils/Test_Output/ . 
+     This is filled with files made with msugra slha-files "susy_740_540_0_10_P_slha.txt" etc. 
+     Running over this directory then goes as follows:  
+
+     python SUSYSignalCalc.py --dir  Test_Output --slhaformat  "susy_*_*_0_10_P_slha.txt" --varnames m0,m12
+
+
+
+*******************************************************************************************************
+       The finalState identifiers: 
+
+
+1 : sg    : squark - gluino 
+2 : gg    : gluino - gluino
+3 : ss    : squark - squark 
+4 : sb    : squark - antisquark (contains sbottoms!) 
+51 : bb1  : sbottom - antisbottom 1
+52 : bb2  : sbottom - antisbottom 2
+61 : tb1  : stop - antistop 1
+62 : tb2  : stop - antistop 2
+
+71 : ng1  : chi^{0}_{1} - gluino
+72 : ng2  : chi^{0}_{2} - gluino
+73 : ng3  : chi^{0}_{3} - gluino
+74 : ng4  : chi^{0}_{4} - gluino
+75 : ng5  : chi^{+}_{1} - gluino
+76 : ng6  : chi^{+}_{2} - gluino
+77 : ng7  : chi^{-}_{1} - gluino
+78 : ng8  : chi^{-}_{2} - gluino
+
+81 : ns1  : chi^{0}_{1} - squark
+82 : ns2  : chi^{0}_{2} - squark
+83 : ns3  : chi^{0}_{3} - squark
+84 : ns4  : chi^{0}_{4} - squark
+85 : ns5  : chi^{+}_{1} - squark
+86 : ns6  : chi^{+}_{2} - squark
+87 : ns7  : chi^{-}_{1} - squark
+88 : ns8  : chi^{-}_{2} - squark
+
+111       : chi^{0}_1 - chi^{0}_1
+112       : chi^{0}_1 - chi^{0}_2
+113       : chi^{0}_1 - chi^{0}_3
+114       : chi^{0}_1 - chi^{0}_4
+115       : chi^{0}_1 - chi^{+}_1
+116       : chi^{0}_1 - chi^{+}_2
+117       : chi^{0}_1 - chi^{-}_1
+118       : chi^{0}_1 - chi^{-}_2
+122       : chi^{0}_2 - chi^{0}_2
+123       : chi^{0}_2 - chi^{0}_3
+124       : chi^{0}_2 - chi^{0}_4
+125       : chi^{0}_2 - chi^{+}_1
+126       : chi^{0}_2 - chi^{+}_2
+127       : chi^{0}_2 - chi^{-}_1
+128       : chi^{0}_2 - chi^{-}_2
+133       : chi^{0}_3 - chi^{0}_3
+134       : chi^{0}_3 - chi^{0}_4
+135       : chi^{0}_3 - chi^{+}_1
+136       : chi^{0}_3 - chi^{+}_2
+137       : chi^{0}_3 - chi^{-}_1
+138       : chi^{0}_3 - chi^{-}_2
+144       : chi^{0}_4 - chi^{0}_4
+145       : chi^{0}_4 - chi^{+}_1
+146       : chi^{0}_4 - chi^{+}_2
+147       : chi^{0}_4 - chi^{-}_1
+148       : chi^{0}_4 - chi^{-}_2
+157       : chi^{+}_1 - chi^{-}_1
+158       : chi^{+}_1 - chi^{-}_2
+167       : chi^{+}_2 - chi^{-}_1
+168       : chi^{+}_2 - chi^{-}_2
+
+201: ll1  : left-handed selectron pair
+202: ll2  : right-handed selectron pair 
+203: ll3  : sneutrino pair (first gen.)
+204: ll4  : ~e^{+} - sneutrino 
+205: ll5  : ~e^{-} - sneutrino 
+206: ll6  : stau1 - stau1
+207: ll7  : stau2 - stau2
+208: ll8  : stau1 - stau2
+209: ll9  : sneutrino tau - sneutrino tau
+210: 1110 : stau1^{+} - sneutrino tau
+211: 1111 : stau1^{-} - sneutrino tau
+212: 1112 : stau2^{+} - sneutrino tau
+213: 1113 : stau2^{-} - sneutrino tau
+216: ll16  : left-handed smuon pair
+217: ll17  : right-handed smuon pair 
+218: ll18  : sneutrino pair (second gen.)
+219: ll19  : ~mu^{+} - sneutrino 
+220: ll20  : ~mu^{-} - sneutrino 
+	
+
+*******************************************************************************************************
+
+

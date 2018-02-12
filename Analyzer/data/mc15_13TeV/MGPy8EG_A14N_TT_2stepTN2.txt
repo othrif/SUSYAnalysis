@@ -1,0 +1,12 @@
+# contact: othmane.rifki@cern.ch, cross-sections from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVstopsbottom
+# date: 09/03/2017
+DSID	FS	CROSSECTION[pb]	K-FACTOR	FILTEREFF	REL.UNCERT
+388230  61  0.296128	    1.0 	    1.0         1.0
+388231  61  0.296128	    1.0 	    1.0         1.0
+388232  61  0.296128	    1.0 	    0.12054     1.0
+388233  61  0.296128	    1.0 	    0.11848     1.0
+388234  61  0.174599 	    1.0 	    0.12130     1.0
+388235  61  0.107045	    1.0 	    0.12071     1.0
+388236  61  0.067048	    1.0 	    0.11857     1.0
+388237  61  0.043142	    1.0 	    0.12219     1.0
+388238  61  0.028334	    1.0 	    0.11810     1.0
