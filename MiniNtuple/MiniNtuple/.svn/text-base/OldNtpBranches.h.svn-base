@@ -1,0 +1,388 @@
+//////////////////////////////////////////////////////////
+// This class has been automatically generated on
+// Thu Jul  2 08:07:21 2015 by ROOT version 5.34/30
+// from TTree AnaNtup/AnaNtup
+// found on file: user.jpoveda.5632900._000001.output.root
+//////////////////////////////////////////////////////////
+
+#ifndef OldNtpBranches_h
+#define OldNtpBranches_h
+
+#include <TROOT.h>
+#include <TChain.h>
+#include <TFile.h>
+
+// Header file for the classes stored in the TTree if any.
+#include <vector>
+
+// Fixed size dimensions of array or collections stored in the TTree if any.
+
+using namespace std;
+
+class OldNtpBranches {
+public :
+   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   Int_t           fCurrent; //!current Tree number in a TChain
+   bool is_truth;
+
+   // Declaration of leaf types
+   Bool_t          HLT_noalg_L12EM15;
+   Bool_t          HLT_noalg_L12EM7;
+   Bool_t          HLT_noalg_L12MU4;
+   Bool_t          HLT_noalg_L1EM12;
+   Bool_t          HLT_noalg_L1EM15;
+   Bool_t          HLT_noalg_L1EM18VH;
+   Bool_t          HLT_noalg_L1MU10;
+   Bool_t          HLT_noalg_L1XE35;
+   Bool_t          L1_2EM15;
+   Bool_t          L1_2EM7;
+   Bool_t          L1_2MU4;
+   Bool_t          L1_2MU6;
+   Bool_t          L1_EM12;
+   Bool_t          L1_EM15;
+   Bool_t          L1_EM15_MU4;
+   Bool_t          L1_EM7_MU10;
+   Bool_t          L1_MU10;
+   Bool_t          L1_MU15;
+   Bool_t          L1_MU4;
+   Bool_t          L1_XE35;
+   Bool_t          HLT_e24_lhmedium_iloose_L1EM18VH;
+   Bool_t          HLT_e24_lhmedium_iloose_L1EM20VH;
+   Bool_t          HLT_e24_lhmedium_L1EM18VH;
+   Bool_t          HLT_e24_lhtight_iloose;
+   Bool_t          HLT_e24_lhtight_iloose_L1EM20VH;
+   Bool_t          HLT_e24_medium_iloose_L1EM18VH;
+   Bool_t          HLT_e24_medium_iloose_L1EM20VH;
+   Bool_t          HLT_e24_medium_L1EM18VH;
+   Bool_t          HLT_e24_tight_iloose;
+   Bool_t          HLT_e24_tight_iloose_L1EM20VH;
+   Bool_t          HLT_e26_lhtight_iloose;
+   Bool_t          HLT_e26_tight_iloose;
+   Bool_t          HLT_e60_lhmedium;
+   Bool_t          HLT_e60_medium;
+   Bool_t          HLT_j100_xe80;
+   Bool_t          HLT_j80_xe80;
+   Bool_t          HLT_mu18;
+   Bool_t          HLT_mu20_iloose_L1MU15;
+   Bool_t          HLT_mu24_iloose_L1MU15;
+   Bool_t          HLT_mu24_imedium;
+   Bool_t          HLT_mu26_imedium;
+   Bool_t          HLT_mu50;
+   Bool_t          HLT_x700_pufit_wEFMu;
+   Bool_t          HLT_xe100;
+   Bool_t          HLT_xe100_mht;
+   Bool_t          HLT_xe100_mht_wEFMu;
+   Bool_t          HLT_xe100_pueta;
+   Bool_t          HLT_xe100_pueta_wEFMu;
+   Bool_t          HLT_xe100_pufit;
+   Bool_t          HLT_xe100_pufit_wEFMu;
+   Bool_t          HLT_xe100_wEFMu;
+   Bool_t          HLT_xe35;
+   Bool_t          HLT_xe35_mht;
+   Bool_t          HLT_xe35_mht_wEFMu;
+   Bool_t          HLT_xe35_pueta;
+   Bool_t          HLT_xe35_pueta_wEFMu;
+   Bool_t          HLT_xe35_pufit;
+   Bool_t          HLT_xe35_pufit_wEFMu;
+   Bool_t          HLT_xe35_wEFMu;
+   Bool_t          HLT_xe70;
+   Bool_t          HLT_xe70_mht;
+   Bool_t          HLT_xe70_mht_wEFMu;
+   Bool_t          HLT_xe70_pueta;
+   Bool_t          HLT_xe70_pueta_wEFMu;
+   Bool_t          HLT_xe70_pufit;
+   Bool_t          HLT_xe70_wEFMu;
+   Int_t           EventNumber;
+   Int_t           ChannelNumber;
+   Double_t        AvgMu;
+   Double_t        EventWeight;
+   Int_t           bcid;
+   Int_t           LB;
+   Int_t           passGRL;
+   Int_t           RunNb;
+   Int_t           DetError;
+   Int_t           NMu;
+   vector<double>  *Mu_eta;
+   vector<double>  *Mu_phi;
+   vector<double>  *Mu_pT;
+   vector<double>  *Mu_SFw;
+   vector<int>     *Mu_charge;
+   vector<double>  *Mu_d0pvtx;
+   vector<double>  *Mu_sigd0;
+   vector<double>  *Mu_z0pvtx;
+   vector<bool>    *Mu_isBad;
+   vector<bool>    *Mu_isCosmic;
+   vector<int>     *Mu_type;
+   vector<int>     *Mu_origin;
+   vector<double>  *Mu_ptcone20;
+   vector<double>  *Mu_ptcone30;
+   vector<double>  *Mu_ptcone40;
+   vector<double>  *Mu_ptvarcone20;
+   vector<double>  *Mu_ptvarcone30;
+   vector<double>  *Mu_ptvarcone40;
+   vector<double>  *Mu_topoetcone20;
+   vector<double>  *Mu_topoetcone30;
+   vector<double>  *Mu_topoetcone40;
+   vector<bool>    *Mu_passIsoVeryLooseTO;
+   vector<bool>    *Mu_passIsoVeryLoose;
+   vector<bool>    *Mu_passIsoLoose;
+   vector<bool>    *Mu_passIsoTight;
+   vector<bool>    *Mu_passIsoGrad;
+   vector<bool>    *Mu_passIsoGradCustom;
+   vector<bool>    *Mu_passIsoGradLoose;
+   Int_t           NEl;
+   vector<double>  *El_eta;
+   vector<double>  *El_phi;
+   vector<double>  *El_pT;
+   vector<double>  *El_E;
+   vector<int>     *El_charge;
+   vector<double>  *El_sigd0;
+   vector<double>  *El_z0pvtx;
+   vector<double>  *El_d0pvtx;
+   vector<double>  *El_SFwMedium;
+   vector<double>  *El_SFwMediumLH;
+   vector<double>  *El_SFwTight;
+   vector<double>  *El_SFwTightLH;
+   vector<bool>    *El_isLooseLH;
+   vector<bool>    *El_isMediumLH;
+   vector<bool>    *El_isTightLH;
+   vector<bool>    *El_isLoose;
+   vector<bool>    *El_isMedium;
+   vector<bool>    *El_isTight;
+   vector<int>     *El_type;
+   vector<int>     *El_origin;
+   vector<double>  *El_ptcone20;
+   vector<double>  *El_ptcone30;
+   vector<double>  *El_ptcone40;
+   vector<double>  *El_ptvarcone20;
+   vector<double>  *El_ptvarcone30;
+   vector<double>  *El_ptvarcone40;
+   vector<double>  *El_topoetcone20;
+   vector<double>  *El_topoetcone30;
+   vector<double>  *El_topoetcone40;
+   vector<bool>    *El_passIsoVeryLooseTO;
+   vector<bool>    *El_passIsoVeryLoose;
+   vector<bool>    *El_passIsoLoose;
+   vector<bool>    *El_passIsoTight;
+   vector<bool>    *El_passIsoGrad;
+   vector<bool>    *El_passIsoGradCustom;
+   vector<bool>    *El_passIsoGradLoose;
+   Int_t           NJet;
+   vector<double>  *Jet_eta;
+   vector<double>  *Jet_phi;
+   vector<double>  *Jet_pT;
+   vector<double>  *Jet_E;
+   vector<double>  *Jet_quality;
+   vector<double>  *Jet_JVF;
+   vector<double>  *Jet_JVT;
+   vector<double>  *Jet_MV2c20;
+   vector<double>  *Jet_SFw;
+   vector<int>     *Jet_ConeTruthLabel;
+   vector<int>     *Jet_PartonTruthLabel;
+   vector<double>  *Jet_deltaR;
+   vector<int>     *Jet_nTrk;
+   Float_t         Etmiss_CST_Etx;
+   Float_t         Etmiss_CST_Ety;
+   Float_t         Etmiss_CST_Et;
+   Float_t         Etmiss_TST_Etx;
+   Float_t         Etmiss_TST_Ety;
+   Float_t         Etmiss_TST_Et;
+   Int_t           NTruthV;
+   vector<double>  *TruthV_eta;
+   vector<double>  *TruthV_phi;
+   vector<double>  *TruthV_pT;
+   vector<double>  *TruthV_m;
+   Int_t           SUSY_Spart_pdgId1;
+   Int_t           SUSY_Spart_pdgId2;
+   Float_t         PV_z;
+
+   // List of branches
+   TBranch        *b_HLT_noalg_L12EM15;   //!
+   TBranch        *b_HLT_noalg_L12EM7;   //!
+   TBranch        *b_HLT_noalg_L12MU4;   //!
+   TBranch        *b_HLT_noalg_L1EM12;   //!
+   TBranch        *b_HLT_noalg_L1EM15;   //!
+   TBranch        *b_HLT_noalg_L1EM18VH;   //!
+   TBranch        *b_HLT_noalg_L1MU10;   //!
+   TBranch        *b_HLT_noalg_L1XE35;   //!
+   TBranch        *b_L1_2EM15;   //!
+   TBranch        *b_L1_2EM7;   //!
+   TBranch        *b_L1_2MU4;   //!
+   TBranch        *b_L1_2MU6;   //!
+   TBranch        *b_L1_EM12;   //!
+   TBranch        *b_L1_EM15;   //!
+   TBranch        *b_L1_EM15_MU4;   //!
+   TBranch        *b_L1_EM7_MU10;   //!
+   TBranch        *b_L1_MU10;   //!
+   TBranch        *b_L1_MU15;   //!
+   TBranch        *b_L1_MU4;   //!
+   TBranch        *b_L1_XE35;   //!
+   TBranch        *b_HLT_e24_lhmedium_iloose_L1EM18VH;   //!
+   TBranch        *b_HLT_e24_lhmedium_iloose_L1EM20VH;   //!
+   TBranch        *b_HLT_e24_lhmedium_L1EM18VH;   //!
+   TBranch        *b_HLT_e24_lhtight_iloose;   //!
+   TBranch        *b_HLT_e24_lhtight_iloose_L1EM20VH;   //!
+   TBranch        *b_HLT_e24_medium_iloose_L1EM18VH;   //!
+   TBranch        *b_HLT_e24_medium_iloose_L1EM20VH;   //!
+   TBranch        *b_HLT_e24_medium_L1EM18VH;   //!
+   TBranch        *b_HLT_e24_tight_iloose;   //!
+   TBranch        *b_HLT_e24_tight_iloose_L1EM20VH;   //!
+   TBranch        *b_HLT_e26_lhtight_iloose;   //!
+   TBranch        *b_HLT_e26_tight_iloose;   //!
+   TBranch        *b_HLT_e60_lhmedium;   //!
+   TBranch        *b_HLT_e60_medium;   //!
+   TBranch        *b_HLT_j100_xe80;   //!
+   TBranch        *b_HLT_j80_xe80;   //!
+   TBranch        *b_HLT_mu18;   //!
+   TBranch        *b_HLT_mu20_iloose_L1MU15;   //!
+   TBranch        *b_HLT_mu24_iloose_L1MU15;   //!
+   TBranch        *b_HLT_mu24_imedium;   //!
+   TBranch        *b_HLT_mu26_imedium;   //!
+   TBranch        *b_HLT_mu50;   //!
+   TBranch        *b_HLT_x700_pufit_wEFMu;   //!
+   TBranch        *b_HLT_xe100;   //!
+   TBranch        *b_HLT_xe100_mht;   //!
+   TBranch        *b_HLT_xe100_mht_wEFMu;   //!
+   TBranch        *b_HLT_xe100_pueta;   //!
+   TBranch        *b_HLT_xe100_pueta_wEFMu;   //!
+   TBranch        *b_HLT_xe100_pufit;   //!
+   TBranch        *b_HLT_xe100_pufit_wEFMu;   //!
+   TBranch        *b_HLT_xe100_wEFMu;   //!
+   TBranch        *b_HLT_xe35;   //!
+   TBranch        *b_HLT_xe35_mht;   //!
+   TBranch        *b_HLT_xe35_mht_wEFMu;   //!
+   TBranch        *b_HLT_xe35_pueta;   //!
+   TBranch        *b_HLT_xe35_pueta_wEFMu;   //!
+   TBranch        *b_HLT_xe35_pufit;   //!
+   TBranch        *b_HLT_xe35_pufit_wEFMu;   //!
+   TBranch        *b_HLT_xe35_wEFMu;   //!
+   TBranch        *b_HLT_xe70;   //!
+   TBranch        *b_HLT_xe70_mht;   //!
+   TBranch        *b_HLT_xe70_mht_wEFMu;   //!
+   TBranch        *b_HLT_xe70_pueta;   //!
+   TBranch        *b_HLT_xe70_pueta_wEFMu;   //!
+   TBranch        *b_HLT_xe70_pufit;   //!
+   TBranch        *b_HLT_xe70_wEFMu;   //!
+   TBranch        *b_EventNumber;   //!
+   TBranch        *b_ChannelNumber;   //!
+   TBranch        *b_AvgMu;   //!
+   TBranch        *b_EventWeight;   //!
+   TBranch        *b_bcid;   //!
+   TBranch        *b_LB;   //!
+   TBranch        *b_passGRL;   //!
+   TBranch        *b_RunNb;   //!
+   TBranch        *b_DetError;   //!
+   TBranch        *b_NMu;   //!
+   TBranch        *b_Mu_eta;   //!
+   TBranch        *b_Mu_phi;   //!
+   TBranch        *b_Mu_pT;   //!
+   TBranch        *b_Mu_SFw;   //!
+   TBranch        *b_Mu_charge;   //!
+   TBranch        *b_Mu_d0pvtx;   //!
+   TBranch        *b_Mu_sigd0;   //!
+   TBranch        *b_Mu_z0pvtx;   //!
+   TBranch        *b_Mu_isBad;   //!
+   TBranch        *b_Mu_isCosmic;   //!
+   TBranch        *b_Mu_type;   //!
+   TBranch        *b_Mu_origin;   //!
+   TBranch        *b_Mu_ptcone20;   //!
+   TBranch        *b_Mu_ptcone30;   //!
+   TBranch        *b_Mu_ptcone40;   //!
+   TBranch        *b_Mu_ptvarcone20;   //!
+   TBranch        *b_Mu_ptvarcone30;   //!
+   TBranch        *b_Mu_ptvarcone40;   //!
+   TBranch        *b_Mu_topoetcone20;   //!
+   TBranch        *b_Mu_topoetcone30;   //!
+   TBranch        *b_Mu_topoetcone40;   //!
+   TBranch        *b_Mu_passIsoVeryLooseTO;   //!
+   TBranch        *b_Mu_passIsoVeryLoose;   //!
+   TBranch        *b_Mu_passIsoLoose;   //!
+   TBranch        *b_Mu_passIsoTight;   //!
+   TBranch        *b_Mu_passIsoGrad;   //!
+   TBranch        *b_Mu_passIsoGradCustom;   //!
+   TBranch        *b_Mu_passIsoGradLoose;   //!
+   TBranch        *b_NEl;   //!
+   TBranch        *b_El_eta;   //!
+   TBranch        *b_El_phi;   //!
+   TBranch        *b_El_pT;   //!
+   TBranch        *b_El_E;   //!
+   TBranch        *b_El_charge;   //!
+   TBranch        *b_El_sigd0;   //!
+   TBranch        *b_El_z0pvtx;   //!
+   TBranch        *b_El_d0pvtx;   //!
+   TBranch        *b_El_SFwMedium;   //!
+   TBranch        *b_El_SFwMediumLH;   //!
+   TBranch        *b_El_SFwTight;   //!
+   TBranch        *b_El_SFwTightLH;   //!
+   TBranch        *b_El_isLooseLH;   //!
+   TBranch        *b_El_isMediumLH;   //!
+   TBranch        *b_El_isTightLH;   //!
+   TBranch        *b_El_isLoose;   //!
+   TBranch        *b_El_isMedium;   //!
+   TBranch        *b_El_isTight;   //!
+   TBranch        *b_El_type;   //!
+   TBranch        *b_El_origin;   //!
+   TBranch        *b_El_ptcone20;   //!
+   TBranch        *b_El_ptcone30;   //!
+   TBranch        *b_El_ptcone40;   //!
+   TBranch        *b_El_ptvarcone20;   //!
+   TBranch        *b_El_ptvarcone30;   //!
+   TBranch        *b_El_ptvarcone40;   //!
+   TBranch        *b_El_topoetcone20;   //!
+   TBranch        *b_El_topoetcone30;   //!
+   TBranch        *b_El_topoetcone40;   //!
+   TBranch        *b_El_passIsoVeryLooseTO;   //!
+   TBranch        *b_El_passIsoVeryLoose;   //!
+   TBranch        *b_El_passIsoLoose;   //!
+   TBranch        *b_El_passIsoTight;   //!
+   TBranch        *b_El_passIsoGrad;   //!
+   TBranch        *b_El_passIsoGradCustom;   //!
+   TBranch        *b_El_passIsoGradLoose;   //!
+   TBranch        *b_NJet;   //!
+   TBranch        *b_Jet_eta;   //!
+   TBranch        *b_Jet_phi;   //!
+   TBranch        *b_Jet_pT;   //!
+   TBranch        *b_Jet_E;   //!
+   TBranch        *b_Jet_quality;   //!
+   TBranch        *b_Jet_JVF;   //!
+   TBranch        *b_Jet_JVT;   //!
+   TBranch        *b_Jet_MV2c20;   //!
+   TBranch        *b_Jet_SFw;   //!
+   TBranch        *b_Jet_ConeTruthLabel;
+   TBranch        *b_Jet_PartonTruthLabel;
+   TBranch        *b_Jet_deltaR;
+   TBranch        *b_Jet_nTrk;   //!
+   TBranch        *b_Etmiss_CST_Etx;   //!
+   TBranch        *b_Etmiss_CST_Ety;   //!
+   TBranch        *b_Etmiss_CST_Et;   //!
+   TBranch        *b_Etmiss_TST_Etx;   //!
+   TBranch        *b_Etmiss_TST_Ety;   //!
+   TBranch        *b_Etmiss_TST_Et;   //!
+   TBranch        *b_NTruthV;   //!
+   TBranch        *b_TruthV_eta;   //!
+   TBranch        *b_TruthV_phi;   //!
+   TBranch        *b_TruthV_pT;   //!
+   TBranch        *b_TruthV_m;   //!
+   TBranch        *b_SUSY_Spart_pdgId1;   //!
+   TBranch        *b_SUSY_Spart_pdgId2;   //!
+   TBranch        *b_PV_z;   //!
+
+   /*   OldNtpBranches(TTree *tree=0);
+   virtual ~OldNtpBranches();
+   virtual Int_t    Cut(Long64_t entry);
+   virtual Int_t    GetEntry(Long64_t entry);
+   virtual Long64_t LoadTree(Long64_t entry);
+   virtual void     Init(TTree *tree);
+   virtual void     Loop();
+   virtual Bool_t   Notify();
+   virtual void     Show(Long64_t entry = -1);*/
+   OldNtpBranches(bool truth);
+   ~OldNtpBranches();
+   bool Init(TTree *tree);//true if MC is processed          
+   void Init_MC(TTree *tree);
+   void Init_DATA(TTree *tree);
+   void Init_TRUTH(TTree *tree);
+
+};
+
+#endif

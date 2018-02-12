@@ -1,0 +1,217 @@
+/*
+ * myevt_n.hh
+ *
+ *  Created on: May 7, 2009
+ *  Author: Alexander Paramonov
+ *  paramon@hep.uchicago.edu
+ */
+
+//Blocks: myevt
+#ifndef MYEVT_N_HH_
+#define MYEVT_N_HH_
+
+//_____________________________________________________________________________
+const Int_t MAXJETS = 100;
+const Int_t MAXLEPT = 25;
+const Int_t MAXVTX = 60;
+const Int_t MAXHEPG = 500;
+const Int_t MAXPART = 200;
+const Int_t MAXSTABLE = 1000;
+const Int_t MAXCLUSTER = 2000;
+
+//_____________________________________________________________________________
+//This is the format used to store the reduced ntuple
+struct my_event {
+
+	 Bool_t isMC;
+
+  //General Info
+  Int_t           EventNumber;
+  Int_t           ChannelNumber;
+  Float_t        AvgMu;
+  Float_t        EventWeight;
+  Int_t           bcid;
+  Int_t           LB;
+  Int_t           passGRL;
+  Int_t           RunNb;
+  Int_t           DetError;
+
+  //Triggers
+  Bool_t          HLT_noalg_L12EM15;
+  Bool_t          HLT_noalg_L12EM7;
+  Bool_t          HLT_noalg_L12MU4;
+  Bool_t          HLT_noalg_L1EM12;
+  Bool_t          HLT_noalg_L1EM15;
+  Bool_t          HLT_noalg_L1EM18VH;
+  Bool_t          HLT_noalg_L1MU10;
+  Bool_t          HLT_noalg_L1XE35;
+  Bool_t          L1_2EM15;
+  Bool_t          L1_2EM7;
+  Bool_t          L1_2MU4;
+  Bool_t          L1_2MU6;
+  Bool_t          L1_EM12;
+  Bool_t          L1_EM15;
+  Bool_t          L1_EM15_MU4;
+  Bool_t          L1_EM7_MU10;
+  Bool_t          L1_MU10;
+  Bool_t          L1_MU15;
+  Bool_t          L1_MU4;
+  Bool_t          L1_XE35;
+  Bool_t          HLT_e24_lhmedium_iloose_L1EM18VH;
+  Bool_t          HLT_e24_lhmedium_iloose_L1EM20VH;
+  Bool_t          HLT_e24_lhmedium_L1EM18VH;
+  Bool_t          HLT_e24_lhtight_iloose;
+  Bool_t          HLT_e24_lhtight_iloose_L1EM20VH;
+  Bool_t          HLT_e24_medium_iloose_L1EM18VH;
+  Bool_t          HLT_e24_medium_iloose_L1EM20VH;
+  Bool_t          HLT_e24_medium_L1EM18VH;
+  Bool_t          HLT_e24_tight_iloose;
+  Bool_t          HLT_e24_tight_iloose_L1EM20VH;
+  Bool_t          HLT_e26_lhtight_iloose;
+  Bool_t          HLT_e26_tight_iloose;
+  Bool_t          HLT_e60_lhmedium;
+  Bool_t          HLT_e60_medium;
+  Bool_t          HLT_j100_xe80;
+  Bool_t          HLT_j80_xe80;
+  Bool_t          HLT_mu18;
+  Bool_t          HLT_mu20_iloose_L1MU15;
+  Bool_t          HLT_mu24_iloose_L1MU15;
+  Bool_t          HLT_mu24_imedium;
+  Bool_t          HLT_mu26_imedium;
+  Bool_t          HLT_mu50;
+  Bool_t          HLT_x700_pufit_wEFMu;
+  Bool_t          HLT_xe100;
+  Bool_t          HLT_xe100_mht;
+  Bool_t          HLT_xe100_mht_wEFMu;
+  Bool_t          HLT_xe100_pueta;
+  Bool_t          HLT_xe100_pueta_wEFMu;
+  Bool_t          HLT_xe100_pufit;
+  Bool_t          HLT_xe100_pufit_wEFMu;
+  Bool_t          HLT_xe100_wEFMu;
+  Bool_t          HLT_xe35;
+  Bool_t          HLT_xe35_mht;
+  Bool_t          HLT_xe35_mht_wEFMu;
+  Bool_t          HLT_xe35_pueta;
+  Bool_t          HLT_xe35_pueta_wEFMu;
+  Bool_t          HLT_xe35_pufit;
+  Bool_t          HLT_xe35_pufit_wEFMu;
+  Bool_t          HLT_xe35_wEFMu;
+  Bool_t          HLT_xe70;
+  Bool_t          HLT_xe70_mht;
+  Bool_t          HLT_xe70_mht_wEFMu;
+  Bool_t          HLT_xe70_pueta;
+  Bool_t          HLT_xe70_pueta_wEFMu;
+  Bool_t          HLT_xe70_pufit;
+  Bool_t          HLT_xe70_wEFMu;
+
+  //electrons
+  Int_t NEl;
+  Float_t El_eta[MAXLEPT];
+  Float_t El_phi[MAXLEPT];
+  Float_t El_pT[MAXLEPT];
+  Float_t El_E[MAXLEPT];
+  Int_t El_charge[MAXLEPT];
+  Float_t El_sigd0[MAXLEPT];
+  Float_t El_z0pvtx[MAXLEPT];
+  Float_t El_d0pvtx[MAXLEPT];
+  Float_t El_SFwMedium[MAXLEPT];
+  Float_t El_SFwMediumLH[MAXLEPT];
+  Float_t El_SFwTight[MAXLEPT];
+  Float_t El_SFwTightLH[MAXLEPT];
+  Bool_t El_isLooseLH[MAXLEPT];
+  Bool_t El_isMediumLH[MAXLEPT];
+  Bool_t El_isTightLH[MAXLEPT];
+  Bool_t El_isLoose[MAXLEPT];
+  Bool_t El_isMedium[MAXLEPT];
+  Bool_t El_isTight[MAXLEPT];
+  Int_t El_type[MAXLEPT];
+  Int_t El_origin[MAXLEPT];
+  Float_t El_ptcone20[MAXLEPT];
+  Float_t El_ptcone30[MAXLEPT];
+  Float_t El_ptcone40[MAXLEPT];
+  Float_t El_ptvarcone20[MAXLEPT];
+  Float_t El_ptvarcone30[MAXLEPT];
+  Float_t El_ptvarcone40[MAXLEPT];
+  Float_t El_topoetcone20[MAXLEPT];
+  Float_t El_topoetcone30[MAXLEPT];
+  Float_t El_topoetcone40[MAXLEPT];
+  Bool_t El_passIsoVeryLooseTO[MAXLEPT];
+  Bool_t El_passIsoVeryLoose[MAXLEPT];
+  Bool_t El_passIsoLoose[MAXLEPT];
+  Bool_t El_passIsoTight[MAXLEPT];
+  Bool_t El_passIsoGrad[MAXLEPT];
+  Bool_t El_passIsoGradCustom[MAXLEPT];
+  Bool_t El_passIsoGradLoose[MAXLEPT];
+
+  //muons
+  Int_t NMu;
+  Float_t Mu_eta[MAXLEPT];
+  Float_t Mu_phi[MAXLEPT];
+  Float_t Mu_pT[MAXLEPT];
+  Float_t Mu_SFw[MAXLEPT];
+  Int_t Mu_charge[MAXLEPT];
+  Float_t Mu_d0pvtx[MAXLEPT];
+  Float_t Mu_sigd0[MAXLEPT];
+  Float_t Mu_z0pvtx[MAXLEPT];
+  Bool_t Mu_isBad[MAXLEPT];
+  Bool_t Mu_isCosmic[MAXLEPT];
+  Int_t Mu_type[MAXLEPT];
+  Int_t Mu_origin[MAXLEPT];
+  Float_t Mu_ptcone20[MAXLEPT];
+  Float_t Mu_ptcone30[MAXLEPT];
+  Float_t Mu_ptcone40[MAXLEPT];
+  Float_t Mu_ptvarcone20[MAXLEPT];
+  Float_t Mu_ptvarcone30[MAXLEPT];
+  Float_t Mu_ptvarcone40[MAXLEPT];
+  Float_t Mu_topoetcone20[MAXLEPT];
+  Float_t Mu_topoetcone30[MAXLEPT];
+  Float_t Mu_topoetcone40[MAXLEPT];
+  Bool_t Mu_passIsoVeryLooseTO[MAXLEPT];
+  Bool_t Mu_passIsoVeryLoose[MAXLEPT];
+  Bool_t Mu_passIsoLoose[MAXLEPT];
+  Bool_t Mu_passIsoTight[MAXLEPT];
+  Bool_t Mu_passIsoGrad[MAXLEPT];
+  Bool_t Mu_passIsoGradCustom[MAXLEPT];
+  Bool_t Mu_passIsoGradLoose[MAXLEPT];
+
+  //jets
+  Int_t NJet;
+  Float_t Jet_eta[MAXJETS];
+  Float_t Jet_phi[MAXJETS];
+  Float_t Jet_pT[MAXJETS];
+  Float_t Jet_E[MAXJETS];
+  Float_t Jet_quality[MAXJETS];
+  Float_t Jet_JVF[MAXJETS];
+  Float_t Jet_JVT[MAXJETS];
+  Float_t Jet_MV2c20[MAXJETS];
+  Float_t Jet_SFw[MAXJETS];
+  Int_t Jet_ConeTruthLabel[MAXJETS];
+  Int_t Jet_PartonTruthLabel[MAXJETS];
+  Float_t Jet_deltaR[MAXJETS];
+  Int_t Jet_nTrk[MAXJETS];
+
+  //Etmiss
+  Float_t Etmiss_CST_Etx;
+  Float_t Etmiss_CST_Ety;
+  Float_t Etmiss_CST_Et;
+  Float_t Etmiss_TST_Etx;
+  Float_t Etmiss_TST_Ety;
+  Float_t Etmiss_TST_Et;
+
+  //Truth V
+  Int_t           NTruthV;
+  Float_t TruthV_eta[MAXJETS];
+  Float_t TruthV_phi[MAXJETS];
+  Float_t TruthV_pT[MAXJETS];
+  Float_t TruthV_m[MAXJETS];
+  Int_t           SUSY_Spart_pdgId1;
+  Int_t           SUSY_Spart_pdgId2;
+
+  //others
+  Float_t PV_z;
+
+};
+
+typedef struct my_event myevt;
+
+#endif /* MYEVT_N_HH_ */

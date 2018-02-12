@@ -1,0 +1,5 @@
+#!/bin/bash
+for ARG in `cat $1`
+do
+	./submit_Sasha.sh $ARG
+done

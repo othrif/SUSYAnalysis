@@ -1,0 +1,22 @@
+package MiniNtuple
+
+author Alexander Paramonov
+
+use AtlasPolicy			AtlasPolicy-*
+
+use GaudiInterface		GaudiInterface-*		External
+use AtlasCLHEP  		AtlasCLHEP-* 			External
+use AtlasROOT			AtlasROOT-*			External
+
+
+#library MiniNtuple *.cxx components/*.cxx
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTTableLibs
+
+library MiniNtuple *.cxx -s=components *.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"

@@ -1,0 +1,442 @@
+/*
+ * by Alexander Paramonov:
+ * alexander.paramonov@cern.ch, paramon@hep.uchicago.edu
+ * April 2009
+ */
+
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
+#include <strstream>
+#include <cstring>
+
+#include "TFile.h"
+#include "TMath.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TLeaf.h"
+#include "TRandom.h"
+#include <TLorentzVector.h>
+
+#include "MiniNtuple/TMiniNtuple.h"
+#include "MiniNtuple/myevt.h"
+#include "MiniNtuple/OldNtpBranches.h"
+#include "MiniNtuple/JetQuarkLabelD3PD.h"
+#include "MiniNtuple/RecoTruthMatch.h"
+
+//__________________________________________________________________________
+TMiniNtuple::TMiniNtuple(const std::string& name, ISvcLocator* pSvcLocator) :
+		Algorithm(name, pSvcLocator) {
+
+	declareProperty("OutputFileName", ntpName = "output.root");
+	declareProperty("InputFileName", inpName);
+	declareProperty("Debug", debug = false);
+	declareProperty("ApplyLeptonSkim", m_applyLeptonSkim = false);
+	declareProperty("MinLeptonPt", m_minLeptonPt = 9000.); //was 13 GeV
+}
+
+//_____________________________________________________________________________
+TMiniNtuple::~TMiniNtuple() {
+}
+
+//_____________________________________________________________________________
+StatusCode TMiniNtuple::initialize() {
+
+	StatusCode sc = StatusCode::SUCCESS;
+
+	if (inpName.size() == 0)
+		return StatusCode::FAILURE;
+
+	//	t_inpNtuple = new TChain("susy");
+	t_inpNtuple = new TChain("AnaNtup");
+	std::cout << "Reading: " << inpName.at(0).data() << "\n";
+	if (t_inpNtuple->Add(inpName.at(0).data(), 0) == 0) { // the file is empty or it does not contain "AnaNtup" tree
+		delete t_inpNtuple;
+
+		t_inpNtuple = new TChain("truth");
+		is_truth = true;
+		if (t_inpNtuple->Add(inpName.at(0).data(), 0) == 0) {
+			std::cerr
+					<< "\nThe given file does not contain a susy or truth tree or is non-existent\n";
+			return StatusCode::FAILURE;
+		} else {
+			std::cout << "\nProcessing a TruthD3PD dataset.\n";
+		}
+
+	} else {
+		is_truth = false;
+		std::cout << "\nPrecessing a SUSY_D3PD dataset.\n";
+	}
+
+	std::cout << "----- begin job: ---- \n";
+
+	for (unsigned int i = 1; i < inpName.size(); i++) {
+
+		std::cout << "Reading: " << inpName.at(i).data() << "\n";
+		if (t_inpNtuple->Add(inpName.at(i).data(), 0) == 0) { // breaks if an empty file is given
+			std::cerr
+					<< "\nThe given file does not contain a susy or truth tree or is non-existent\n";
+			return StatusCode::FAILURE;
+		}
+	}
+
+	if (debug)
+		std::cout << "opening output root file" << std::endl;
+
+	outputRootFile = new TFile(ntpName.data(), "RECREATE");
+	gDirectory->mkdir("MiniMon")->cd();
+	gDirectory->cd("/");
+
+	if (debug)
+		std::cout << "booking variables into the tree..." << std::endl;
+
+	//Initialize the new tree:
+	evt = new myevt;
+	memset(evt, 0, sizeof(myevt));
+	t_MiniNtuple = new TTree("MiniNtuple", "a reduced ntuple");
+	b = NULL;
+	SetNewNtpBranches();
+
+	oldTree = new OldNtpBranches(is_truth);
+
+	return sc;
+}
+
+//_____________________________________________________________________________
+StatusCode TMiniNtuple::execute() {
+
+	StatusCode sc = StatusCode::SUCCESS;
+
+	std::cout << "----- initializing the main event loop: ---- \n";
+
+	//Here we implement the main event loop
+	if (!t_inpNtuple)
+		return StatusCode::FAILURE;
+	Long64_t treeEntries = (Long64_t) t_inpNtuple->GetEntries();
+	//	treeEntries = 100; // temporary
+	std::cout << "Expect to process " << treeEntries << " entries" << std::endl;
+	if (treeEntries == 0)
+		return StatusCode::FAILURE;
+
+	t_inpNtuple->GetEntry(0);
+	evt->isMC = oldTree->Init(t_inpNtuple);
+
+	if (evt->isMC)
+		std::cout << "Processing MC\n";
+	else
+		std::cout << "Processing DATA\n";
+
+	int treeno = -1;
+	for (Long64_t i = 0; i < treeEntries; i++) {
+
+		// only way I can get this to be reliable
+		t_inpNtuple->GetEntry(i);
+
+		if (treeno != ((TChain*) t_inpNtuple)->GetTreeNumber()) {
+			evt->isMC = oldTree->Init(t_inpNtuple);
+			t_inpNtuple->GetEntry(i);
+			treeno = ((TChain*) t_inpNtuple)->GetTreeNumber();
+			//SetNewNtpBranches(); //TODO: Do we need this line?
+		}
+
+
+		// initializing ntuple variables
+		InitNtpVar(evt);
+
+		//==========================================================================
+		// We do all processing here:
+		//std::cout << "Event # " << i << "\n";
+		
+	        //General Info
+	       	evt->EventNumber = oldTree->EventNumber;
+	       	evt->ChannelNumber = oldTree->ChannelNumber;
+	       	evt->AvgMu = oldTree->AvgMu;
+	       	evt->EventWeight = oldTree->EventWeight;
+	       	evt->bcid = oldTree->bcid;
+	       	evt->LB = oldTree->LB;
+	       	evt->passGRL = oldTree->passGRL;
+	       	evt->RunNb = oldTree->RunNb;
+			evt->DetError = oldTree->DetError;
+			
+	        //Triggers
+	       	evt->HLT_noalg_L12EM15 = oldTree->HLT_noalg_L12EM15;
+	       	evt->HLT_noalg_L12EM7 = oldTree->HLT_noalg_L12EM7;
+	       	evt->HLT_noalg_L12MU4 = oldTree->HLT_noalg_L12MU4;
+	       	evt->HLT_noalg_L1EM12 = oldTree->HLT_noalg_L1EM12;
+	       	evt->HLT_noalg_L1EM15 = oldTree->HLT_noalg_L1EM15;
+	       	evt->HLT_noalg_L1EM18VH = oldTree->HLT_noalg_L1EM18VH;
+	       	evt->HLT_noalg_L1MU10 = oldTree->HLT_noalg_L1MU10;
+	       	evt->HLT_noalg_L1XE35 = oldTree->HLT_noalg_L1XE35;
+	       	evt->L1_2EM15 = oldTree->L1_2EM15;
+	       	evt->L1_2EM7 = oldTree->L1_2EM7;
+	       	evt->L1_2MU4 = oldTree->L1_2MU4;
+	       	evt->L1_2MU6 = oldTree->L1_2MU6;
+	       	evt->L1_EM12 = oldTree->L1_EM12;
+	       	evt->L1_EM15 = oldTree->L1_EM15;
+	       	evt->L1_EM15_MU4 = oldTree->L1_EM15_MU4;
+	       	evt->L1_EM7_MU10 = oldTree->L1_EM7_MU10;
+	       	evt->L1_MU10 = oldTree->L1_MU10;
+	       	evt->L1_MU15 = oldTree->L1_MU15;
+	       	evt->L1_MU4 = oldTree->L1_MU4;
+	       	evt->L1_XE35 = oldTree->L1_XE35;
+	       	evt->HLT_e24_lhmedium_iloose_L1EM18VH = oldTree->HLT_e24_lhmedium_iloose_L1EM18VH;
+	       	evt->HLT_e24_lhmedium_iloose_L1EM20VH = oldTree->HLT_e24_lhmedium_iloose_L1EM20VH;
+	       	evt->HLT_e24_lhmedium_L1EM18VH = oldTree->HLT_e24_lhmedium_L1EM18VH;
+	       	evt->HLT_e24_lhtight_iloose = oldTree->HLT_e24_lhtight_iloose;
+	       	evt->HLT_e24_lhtight_iloose_L1EM20VH = oldTree->HLT_e24_lhtight_iloose_L1EM20VH;
+	       	evt->HLT_e24_medium_iloose_L1EM18VH = oldTree->HLT_e24_medium_iloose_L1EM18VH;
+	       	evt->HLT_e24_medium_iloose_L1EM20VH = oldTree->HLT_e24_medium_iloose_L1EM20VH;
+	       	evt->HLT_e24_medium_L1EM18VH = oldTree->HLT_e24_medium_L1EM18VH;
+	       	evt->HLT_e24_tight_iloose = oldTree->HLT_e24_tight_iloose;
+	       	evt->HLT_e24_tight_iloose_L1EM20VH = oldTree->HLT_e24_tight_iloose_L1EM20VH;
+	       	evt->HLT_e26_lhtight_iloose = oldTree->HLT_e26_lhtight_iloose;
+	       	evt->HLT_e26_tight_iloose = oldTree->HLT_e26_tight_iloose;
+	       	evt->HLT_e60_lhmedium = oldTree->HLT_e60_lhmedium;
+	       	evt->HLT_e60_medium = oldTree->HLT_e60_medium;
+	       	evt->HLT_j100_xe80 = oldTree->HLT_j100_xe80;
+	       	evt->HLT_j80_xe80 = oldTree->HLT_j80_xe80;
+	       	evt->HLT_mu18 = oldTree->HLT_mu18;
+	       	evt->HLT_mu20_iloose_L1MU15 = oldTree->HLT_mu20_iloose_L1MU15;
+	       	evt->HLT_mu24_iloose_L1MU15 = oldTree->HLT_mu24_iloose_L1MU15;
+	       	evt->HLT_mu24_imedium = oldTree->HLT_mu24_imedium;
+	       	evt->HLT_mu26_imedium = oldTree->HLT_mu26_imedium;
+	       	evt->HLT_mu50 = oldTree->HLT_mu50;
+	       	evt->HLT_x700_pufit_wEFMu = oldTree->HLT_x700_pufit_wEFMu;
+	       	evt->HLT_xe100 = oldTree->HLT_xe100;
+	       	evt->HLT_xe100_mht = oldTree->HLT_xe100_mht;
+	       	evt->HLT_xe100_mht_wEFMu = oldTree->HLT_xe100_mht_wEFMu;
+	       	evt->HLT_xe100_pueta = oldTree->HLT_xe100_pueta;
+	       	evt->HLT_xe100_pueta_wEFMu = oldTree->HLT_xe100_pueta_wEFMu;
+	       	evt->HLT_xe100_pufit = oldTree->HLT_xe100_pufit;
+	       	evt->HLT_xe100_pufit_wEFMu = oldTree->HLT_xe100_pufit_wEFMu;
+	       	evt->HLT_xe100_wEFMu = oldTree->HLT_xe100_wEFMu;
+	       	evt->HLT_xe35 = oldTree->HLT_xe35;
+	       	evt->HLT_xe35_mht = oldTree->HLT_xe35_mht;
+	       	evt->HLT_xe35_mht_wEFMu = oldTree->HLT_xe35_mht_wEFMu;
+	       	evt->HLT_xe35_pueta = oldTree->HLT_xe35_pueta;
+	       	evt->HLT_xe35_pueta_wEFMu = oldTree->HLT_xe35_pueta_wEFMu;
+	       	evt->HLT_xe35_pufit = oldTree->HLT_xe35_pufit;
+	       	evt->HLT_xe35_pufit_wEFMu = oldTree->HLT_xe35_pufit_wEFMu;
+	       	evt->HLT_xe35_wEFMu = oldTree->HLT_xe35_wEFMu;
+	       	evt->HLT_xe70 = oldTree->HLT_xe70;
+	       	evt->HLT_xe70_mht = oldTree->HLT_xe70_mht;
+	       	evt->HLT_xe70_mht_wEFMu = oldTree->HLT_xe70_mht_wEFMu;
+	       	evt->HLT_xe70_pueta = oldTree->HLT_xe70_pueta;
+	       	evt->HLT_xe70_pueta_wEFMu = oldTree->HLT_xe70_pueta_wEFMu;
+	       	evt->HLT_xe70_pufit = oldTree->HLT_xe70_pufit;
+			
+	       	//electrons
+
+	       	 int j = 0;
+	       	 for (int i = 0; i < oldTree->NEl; i++) {
+	     		if (j == MAXLEPT) {
+	     			std::cout << "WARNING: Too many electrons\n";
+	     			break;
+	     		}
+	     		evt->El_eta[j] = oldTree->El_eta->at(i);
+	     		evt->El_phi[j] = oldTree->El_phi->at(i);
+	     		evt->El_pT[j] = oldTree->El_pT->at(i);
+	     		evt->El_E[j] = oldTree->El_E->at(i);
+	     		evt->El_charge[j] = oldTree->El_charge->at(i);
+	     		evt->El_sigd0[j] = oldTree->El_sigd0->at(i);
+	     		evt->El_z0pvtx[j] = oldTree->El_z0pvtx->at(i);
+	     		evt->El_d0pvtx[j] = oldTree->El_d0pvtx->at(i);
+	     		evt->El_SFwMedium[j] = oldTree->El_SFwMedium->at(i);
+	     		evt->El_SFwMediumLH[j] = oldTree->El_SFwMediumLH->at(i);
+	     		evt->El_SFwTight[j] = oldTree->El_SFwTight->at(i);
+	     		evt->El_SFwTightLH[j] = oldTree->El_SFwTightLH->at(i);
+	     		evt->El_isLooseLH[j] = oldTree->El_isLooseLH->at(i);
+	     		evt->El_isMediumLH[j] = oldTree->El_isMediumLH->at(i);
+	     		evt->El_isTightLH[j] = oldTree->El_isTightLH->at(i);
+	     		evt->El_isLoose[j] = oldTree->El_isLoose->at(i);
+	     		evt->El_isMedium[j] = oldTree->El_isMedium->at(i);
+	     		evt->El_isTight[j] = oldTree->El_isTight->at(i);
+				if(evt->isMC){
+				  evt->El_type[j] =  oldTree->El_type->at(i);
+				  evt->El_origin[j] =  oldTree->El_origin->at(i);}
+				else{
+				  evt->El_type[j] =  -1;
+				  evt->El_origin[j] =  -1;}
+	     		evt->El_ptcone20[j] = oldTree->El_ptcone20->at(i);
+	     		evt->El_ptcone30[j] = oldTree->El_ptcone30->at(i);
+	     		evt->El_ptcone40[j] = oldTree->El_ptcone40->at(i);
+	     		evt->El_ptvarcone20[j] = oldTree->El_ptvarcone20->at(i);
+	     		evt->El_ptvarcone30[j] = oldTree->El_ptvarcone30->at(i);
+	     		evt->El_ptvarcone40[j] = oldTree->El_ptvarcone40->at(i);
+	     		evt->El_topoetcone20[j] = oldTree->El_topoetcone20->at(i);
+	     		evt->El_topoetcone30[j] = oldTree->El_topoetcone30->at(i);
+	     		evt->El_topoetcone40[j] = oldTree->El_topoetcone40->at(i);
+	     		evt->El_passIsoVeryLooseTO[j] = oldTree->El_passIsoVeryLooseTO->at(i);
+	     		evt->El_passIsoVeryLoose[j] = oldTree->El_passIsoVeryLoose->at(i);
+	     		evt->El_passIsoLoose[j] = oldTree->El_passIsoLoose->at(i);
+	     		evt->El_passIsoTight[j] = oldTree->El_passIsoTight->at(i);
+	     		evt->El_passIsoGrad[j] = oldTree->El_passIsoGrad->at(i);
+	     		evt->El_passIsoGradCustom[j] = oldTree->El_passIsoGradCustom->at(i);
+	     		evt->El_passIsoGradLoose[j] = oldTree->El_passIsoGradLoose->at(i);
+	       	 j++;
+	       	 }
+	       	 evt->NEl = j;
+			 
+	       	//muons
+	       	 j = 0;
+	       	 for (int i = 0; i < oldTree->NMu; i++) {
+	     		if (j == MAXLEPT) {
+	     			std::cout << "WARNING: Too many muons\n";
+	     			break;
+	     		}
+
+	     		evt->Mu_eta[j] = oldTree->Mu_eta->at(i);
+	     		evt->Mu_phi[j] = oldTree->Mu_phi->at(i);
+	     		evt->Mu_pT[j] = oldTree->Mu_pT->at(i);
+	     		evt->Mu_SFw[j] = oldTree->Mu_SFw->at(i);
+	     		evt->Mu_charge[j] = oldTree->Mu_charge->at(i);
+	     		evt->Mu_d0pvtx[j] = oldTree->Mu_d0pvtx->at(i);
+	     		evt->Mu_sigd0[j] = oldTree->Mu_sigd0->at(i);
+	     		evt->Mu_z0pvtx[j] = oldTree->Mu_z0pvtx->at(i);
+	     		evt->Mu_isBad[j] = oldTree->Mu_isBad->at(i);
+	     		evt->Mu_isCosmic[j] = oldTree->Mu_isCosmic->at(i);
+				if(evt->isMC){
+				  evt->Mu_type[j] =  oldTree->Mu_type->at(i);
+				  evt->Mu_origin[j] =  oldTree->Mu_origin->at(i);}
+				else{
+				  evt->Mu_type[j] =  -1;
+				  evt->Mu_origin[j] =  -1;}
+	     		evt->Mu_ptcone20[j] = oldTree->Mu_ptcone20->at(i);
+	     		evt->Mu_ptcone30[j] = oldTree->Mu_ptcone30->at(i);
+	     		evt->Mu_ptcone40[j] = oldTree->Mu_ptcone40->at(i);
+	     		evt->Mu_ptvarcone20[j] = oldTree->Mu_ptvarcone20->at(i);
+	     		evt->Mu_ptvarcone30[j] = oldTree->Mu_ptvarcone30->at(i);
+	     		evt->Mu_ptvarcone40[j] = oldTree->Mu_ptvarcone40->at(i);
+	     		evt->Mu_topoetcone20[j] = oldTree->Mu_topoetcone20->at(i);
+	     		evt->Mu_topoetcone30[j] = oldTree->Mu_topoetcone30->at(i);
+	     		evt->Mu_topoetcone40[j] = oldTree->Mu_topoetcone40->at(i);
+	     		evt->Mu_passIsoVeryLooseTO[j] = oldTree->Mu_passIsoVeryLooseTO->at(i);
+	     		evt->Mu_passIsoVeryLoose[j] = oldTree->Mu_passIsoVeryLoose->at(i);
+	     		evt->Mu_passIsoLoose[j] = oldTree->Mu_passIsoLoose->at(i);
+	     		evt->Mu_passIsoTight[j] = oldTree->Mu_passIsoTight->at(i);
+	     		evt->Mu_passIsoGrad[j] = oldTree->Mu_passIsoGrad->at(i);
+	     		evt->Mu_passIsoGradCustom[j] = oldTree->Mu_passIsoGradCustom->at(i);
+	     		evt->Mu_passIsoGradLoose[j] = oldTree->Mu_passIsoGradLoose->at(i);
+
+	       	 j++;
+	       	 }
+	       	 evt->NMu = j;
+
+	       	//jets
+	       	 j = 0;
+	       	 for (int i = 0; i < oldTree->NJet; i++) {
+	     		if (j == MAXJETS) {
+	     			std::cout << "WARNING: Too many muons\n";
+	     			break;
+	     		}
+
+	     		evt->Jet_eta[j] = oldTree->Jet_eta->at(i);
+	     		evt->Jet_phi[j] = oldTree->Jet_phi->at(i);
+	     		evt->Jet_pT[j] = oldTree->Jet_pT->at(i);
+	     		evt->Jet_E[j] = oldTree->Jet_E->at(i);
+	     		evt->Jet_quality[j] = oldTree->Jet_quality->at(i);
+	     		evt->Jet_JVF[j] = oldTree->Jet_JVF->at(i);
+	     		evt->Jet_JVT[j] = oldTree->Jet_JVT->at(i);
+	     		evt->Jet_MV2c20[j] = oldTree->Jet_MV2c20->at(i);
+	     		evt->Jet_SFw[j] = oldTree->Jet_SFw->at(i);
+				if(evt->isMC){
+				  evt->Jet_ConeTruthLabel[j] = oldTree->Jet_ConeTruthLabel->at(i);
+				  evt->Jet_PartonTruthLabel[j] = oldTree->Jet_PartonTruthLabel->at(i);
+				  evt->Jet_deltaR[j] = oldTree->Jet_deltaR->at(i);}
+				  else{
+					evt->Jet_ConeTruthLabel[j] = -1;
+					evt->Jet_PartonTruthLabel[j] = -1;
+					evt->Jet_deltaR[j] = -1;
+				  }
+	     		evt->Jet_nTrk[j] = oldTree->Jet_nTrk->at(i);
+	       	 j++;
+	       	 }
+	       	 evt->NJet = j;
+
+			 
+	       	//Etmiss
+	       	evt->Etmiss_CST_Etx = oldTree->Etmiss_CST_Etx;
+	       	evt->Etmiss_CST_Ety = oldTree->Etmiss_CST_Ety;
+	       	evt->Etmiss_CST_Et = oldTree->Etmiss_CST_Et;
+	       	evt->Etmiss_TST_Etx = oldTree->Etmiss_TST_Etx;
+	       	evt->Etmiss_TST_Ety = oldTree->Etmiss_TST_Ety;
+	       	evt->Etmiss_TST_Et = oldTree->Etmiss_TST_Et;
+			
+			//TruthV
+			if(evt->isMC){
+			  evt->NTruthV = oldTree->NTruthV;
+			 j = 0;
+	       	 for (int i = 0; i < oldTree->NTruthV; i++) {
+			   if (j == 10000) {
+				 std::cout << "WARNING: Too many truth vectors\n";
+				 break;
+	     		}
+			  evt->TruthV_eta[j] = oldTree->TruthV_eta->at(i);
+			  evt->TruthV_phi[j] = oldTree->TruthV_phi->at(i);
+			  evt->TruthV_pT[j] = oldTree->TruthV_pT->at(i);
+			  evt->TruthV_m[j] = oldTree->TruthV_m->at(i);
+			  j++;
+			 }
+			 evt->NTruthV = j;
+			 evt->SUSY_Spart_pdgId1 = oldTree->SUSY_Spart_pdgId1;
+			 evt->SUSY_Spart_pdgId2 = oldTree->SUSY_Spart_pdgId2;}
+			else{
+			  evt->NTruthV = 0;
+			  evt->SUSY_Spart_pdgId1 = 0;
+			  evt->SUSY_Spart_pdgId2 = 0;
+			}
+	       	//others
+	       	evt->PV_z = oldTree->PV_z;
+		   
+		//==========================================================================
+		if (-1 == t_MiniNtuple->Fill()) { // fill root tree
+			std::cerr
+					<< "ERROR: Can not fill the tree for the reduced ntuple.\n";
+			return StatusCode::FAILURE;
+		}
+	}
+
+	return sc;
+}
+
+//_____________________________________________________________________________
+
+StatusCode TMiniNtuple::finalize() {
+
+	StatusCode sc = StatusCode::SUCCESS;
+
+	outputRootFile = t_MiniNtuple->GetCurrentFile(); //just in case we switched to a new file
+	outputRootFile->Write(); // close output root file
+	outputRootFile->Close(); // close output root file
+
+	delete oldTree;
+	delete evt;
+
+	std::cout << "----- end job: ---- \n";
+
+	return sc;
+}
+
+//____________________________________________________________________________
+void TMiniNtuple::InitNtpVar(myevt *ev) {
+
+//	ev->el_n = 0;
+
+
+	return;
+}
+
+//_____________________________________________________________________________
+float TMiniNtuple::deltaR(float eta1, float phi1, float eta2, float phi2) {
+
+	float deltaR12 = phi1 - phi2;
+	if (deltaR12 > TMath::Pi())
+		deltaR12 -= 2 * TMath::Pi();
+	if (deltaR12 < -TMath::Pi())
+		deltaR12 += 2 * TMath::Pi();
+
+	deltaR12 = sqrt(deltaR12 * deltaR12 + (eta1 - eta2) * (eta1 - eta2));
+	return deltaR12;
+}
+
+

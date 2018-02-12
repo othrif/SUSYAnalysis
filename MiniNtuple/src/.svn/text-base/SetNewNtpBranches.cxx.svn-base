@@ -1,0 +1,198 @@
+#include "TTree.h"
+#include "TBranch.h"
+#include "TLeaf.h"
+
+#include "MiniNtuple/TMiniNtuple.h"
+#include "MiniNtuple/myevt.h"
+
+//___________________________________________________________________
+void TMiniNtuple::SetNewNtpBranches() {
+
+   if(!b){
+     b = t_MiniNtuple->Branch("myevt", evt, "isMC/O:EventNumber/I:ChannelNumber/I:AvgMu/F:EventWeight/F:bcid/I:LB/I:passGRL/I:RunNb/I:DetError/I:HLT_noalg_L12EM15/O:HLT_noalg_L12EM7/O:HLT_noalg_L12MU4/O:HLT_noalg_L1EM12/O:HLT_noalg_L1EM15/O:HLT_noalg_L1EM18VH/O:HLT_noalg_L1MU10/O:HLT_noalg_L1XE35/O:L1_2EM15/O:L1_2EM7/O:L1_2MU4/O:L1_2MU6/O:L1_EM12/O:L1_EM15/O:L1_EM15_MU4/O:L1_EM7_MU10/O:L1_MU10/O:L1_MU15/O:L1_MU4/O:L1_XE35/O:HLT_e24_lhmedium_iloose_L1EM18VH/O:HLT_e24_lhmedium_iloose_L1EM20VH/O:HLT_e24_lhmedium_L1EM18VH/O:HLT_e24_lhtight_iloose/O:HLT_e24_lhtight_iloose_L1EM20VH/O:HLT_e24_medium_iloose_L1EM18VH/O:HLT_e24_medium_iloose_L1EM20VH/O:HLT_e24_medium_L1EM18VH/O:HLT_e24_tight_iloose/O:HLT_e24_tight_iloose_L1EM20VH/O:HLT_e26_lhtight_iloose/O:HLT_e26_tight_iloose/O:HLT_e60_lhmedium/O:HLT_e60_medium/O:HLT_j100_xe80/O:HLT_j80_xe80/O:HLT_mu18/O:HLT_mu20_iloose_L1MU15/O:HLT_mu24_iloose_L1MU15/O:HLT_mu24_imedium/O:HLT_mu26_imedium/O:HLT_mu50/O:HLT_x700_pufit_wEFMu/O:HLT_xe100/O:HLT_xe100_mht/O:HLT_xe100_mht_wEFMu/O:HLT_xe100_pueta/O:HLT_xe100_pueta_wEFMu/O:HLT_xe100_pufit/O:HLT_xe100_pufit_wEFMu/O:HLT_xe100_wEFMu/O:HLT_xe35/O:HLT_xe35_mht/O:HLT_xe35_mht_wEFMu/O:HLT_xe35_pueta/O:HLT_xe35_pueta_wEFMu/O:HLT_xe35_pufit/O:HLT_xe35_pufit_wEFMu/O:HLT_xe35_wEFMu/O:HLT_xe70/O:HLT_xe70_mht/O:HLT_xe70_mht_wEFMu/O:HLT_xe70_pueta/O:HLT_xe70_pueta_wEFMu/O:HLT_xe70_pufit/O:NEl/I:El_eta[NEl]/F:El_phi[NEl]/F:El_pT[NEl]/F:El_E[NEl]/F:El_charge[NEl]/I:El_sigd0[NEl]/F:El_z0pvtx[NEl]/F:El_d0pvtx[NEl]/F:El_SFwMedium[NEl]/F:El_SFwMediumLH[NEl]/F:El_SFwTight[NEl]/F:El_SFwTightLH[NEl]/F:El_isLooseLH[NEl]/O:El_isMediumLH[NEl]/O:El_isTightLH[NEl]/O:El_isLoose[NEl]/O:El_isMedium[NEl]/O:El_isTight[NEl]/O:El_ptcone20[NEl]/F:El_ptcone30[NEl]/F:El_ptcone40[NEl]/F:El_ptvarcone20[NEl]/F:El_ptvarcone30[NEl]/F:El_ptvarcone40[NEl]/F:El_topoetcone20[NEl]/F:El_topoetcone30[NEl]/F:El_topoetcone40[NEl]/F:El_passIsoVeryLooseTO[NEl]/O:El_passIsoVeryLoose[NEl]/O:El_passIsoLoose[NEl]/O:El_passIsoTight[NEl]/O:El_passIsoGrad[NEl]/O:El_passIsoGradCustom[NEl]/O:El_passIsoGradLoose[NEl]/O:NMu/I:Mu_eta[NMu]/F:Mu_phi[NMu]/F:Mu_pT[NMu]/F:Mu_SFw[NMu]/F:Mu_charge[NMu]/I:Mu_d0pvtx[NMu]/F:Mu_sigd0[NMu]/F:Mu_z0pvtx[NMu]/F:Mu_isBad[NMu]/O:Mu_isCosmic[NMu]/O:Mu_ptcone20[NMu]/F:Mu_ptcone30[NMu]/F:Mu_ptcone40[NMu]/F:Mu_ptvarcone20[NMu]/F:Mu_ptvarcone30[NMu]/F:Mu_ptvarcone40[NMu]/F:Mu_topoetcone20[NMu]/F:Mu_topoetcone30[NMu]/F:Mu_topoetcone40[NMu]/F:Mu_passIsoVeryLooseTO[NMu]/O:Mu_passIsoVeryLoose[NMu]/O:Mu_passIsoLoose[NMu]/O:Mu_passIsoTight[NMu]/O:Mu_passIsoGrad[NMu]/O:Mu_passIsoGradCustom[NMu]/O:Mu_passIsoGradLoose[NMu]/O:NJet/I:Jet_eta[NJet]/F:Jet_phi[NJet]/F:Jet_pT[NJet]/F:Jet_E[NJet]/F:Jet_quality[NJet]/F:Jet_JVF[NJet]/F:Jet_JVT[NJet]/F:Jet_MV2c20[NJet]/F:Jet_SFw[NJet]/F:Jet_nTrk[NJet]/I:Etmiss_CST_Etx/F:Etmiss_CST_Ety/F:Etmiss_CST_Et/F:Etmiss_TST_Etx/F:Etmiss_TST_Ety/F:Etmiss_TST_Et/F:PV_z/F", basket_size);
+     b->SetCompressionLevel(1);
+  }
+
+   //General Info
+   b->GetLeaf("isMC")->SetAddress(&(evt->isMC));
+   b->GetLeaf("EventNumber")->SetAddress(&(evt->EventNumber));
+   b->GetLeaf("ChannelNumber")->SetAddress(&(evt->ChannelNumber));
+   b->GetLeaf("AvgMu")->SetAddress(&(evt->AvgMu));
+   b->GetLeaf("EventWeight")->SetAddress(&(evt->EventWeight));
+   b->GetLeaf("bcid")->SetAddress(&(evt->bcid));
+   b->GetLeaf("LB")->SetAddress(&(evt->LB));
+   b->GetLeaf("passGRL")->SetAddress(&(evt->passGRL));
+   b->GetLeaf("RunNb")->SetAddress(&(evt->RunNb));
+   b->GetLeaf("DetError")->SetAddress(&(evt->DetError));
+
+  //Triggers
+   b->GetLeaf("HLT_noalg_L12EM15")->SetAddress(&(evt->HLT_noalg_L12EM15));
+   b->GetLeaf("HLT_noalg_L12EM7")->SetAddress(&(evt->HLT_noalg_L12EM7));
+   b->GetLeaf("HLT_noalg_L12MU4")->SetAddress(&(evt->HLT_noalg_L12MU4));
+   b->GetLeaf("HLT_noalg_L1EM12")->SetAddress(&(evt->HLT_noalg_L1EM12));
+   b->GetLeaf("HLT_noalg_L1EM15")->SetAddress(&(evt->HLT_noalg_L1EM15));
+   b->GetLeaf("HLT_noalg_L1EM18VH")->SetAddress(&(evt->HLT_noalg_L1EM18VH));
+   b->GetLeaf("HLT_noalg_L1MU10")->SetAddress(&(evt->HLT_noalg_L1MU10));
+   b->GetLeaf("HLT_noalg_L1XE35")->SetAddress(&(evt->HLT_noalg_L1XE35));
+   b->GetLeaf("L1_2EM15")->SetAddress(&(evt->L1_2EM15));
+   b->GetLeaf("L1_2EM7")->SetAddress(&(evt->L1_2EM7));
+   b->GetLeaf("L1_2MU4")->SetAddress(&(evt->L1_2MU4));
+   b->GetLeaf("L1_2MU6")->SetAddress(&(evt->L1_2MU6));
+   b->GetLeaf("L1_EM12")->SetAddress(&(evt->L1_EM12));
+   b->GetLeaf("L1_EM15")->SetAddress(&(evt->L1_EM15));
+   b->GetLeaf("L1_EM15_MU4")->SetAddress(&(evt->L1_EM15_MU4));
+   b->GetLeaf("L1_EM7_MU10")->SetAddress(&(evt->L1_EM7_MU10));
+   b->GetLeaf("L1_MU10")->SetAddress(&(evt->L1_MU10));
+   b->GetLeaf("L1_MU15")->SetAddress(&(evt->L1_MU15));
+   b->GetLeaf("L1_MU4")->SetAddress(&(evt->L1_MU4));
+   b->GetLeaf("L1_XE35")->SetAddress(&(evt->L1_XE35));
+   b->GetLeaf("HLT_e24_lhmedium_iloose_L1EM18VH")->SetAddress(&(evt->HLT_e24_lhmedium_iloose_L1EM18VH));
+   b->GetLeaf("HLT_e24_lhmedium_iloose_L1EM20VH")->SetAddress(&(evt->HLT_e24_lhmedium_iloose_L1EM20VH));
+   b->GetLeaf("HLT_e24_lhmedium_L1EM18VH")->SetAddress(&(evt->HLT_e24_lhmedium_L1EM18VH));
+   b->GetLeaf("HLT_e24_lhtight_iloose")->SetAddress(&(evt->HLT_e24_lhtight_iloose));
+   b->GetLeaf("HLT_e24_lhtight_iloose_L1EM20VH")->SetAddress(&(evt->HLT_e24_lhtight_iloose_L1EM20VH));
+   b->GetLeaf("HLT_e24_medium_iloose_L1EM18VH")->SetAddress(&(evt->HLT_e24_medium_iloose_L1EM18VH));
+   b->GetLeaf("HLT_e24_medium_iloose_L1EM20VH")->SetAddress(&(evt->HLT_e24_medium_iloose_L1EM20VH));
+   b->GetLeaf("HLT_e24_medium_L1EM18VH")->SetAddress(&(evt->HLT_e24_medium_L1EM18VH));
+   b->GetLeaf("HLT_e24_tight_iloose")->SetAddress(&(evt->HLT_e24_tight_iloose));
+   b->GetLeaf("HLT_e24_tight_iloose_L1EM20VH")->SetAddress(&(evt->HLT_e24_tight_iloose_L1EM20VH));
+   b->GetLeaf("HLT_e26_lhtight_iloose")->SetAddress(&(evt->HLT_e26_lhtight_iloose));
+   b->GetLeaf("HLT_e26_tight_iloose")->SetAddress(&(evt->HLT_e26_tight_iloose));
+   b->GetLeaf("HLT_e60_lhmedium")->SetAddress(&(evt->HLT_e60_lhmedium));
+   b->GetLeaf("HLT_e60_medium")->SetAddress(&(evt->HLT_e60_medium));
+   b->GetLeaf("HLT_j100_xe80")->SetAddress(&(evt->HLT_j100_xe80));
+   b->GetLeaf("HLT_j80_xe80")->SetAddress(&(evt->HLT_j80_xe80));
+   b->GetLeaf("HLT_mu18")->SetAddress(&(evt->HLT_mu18));
+   b->GetLeaf("HLT_mu20_iloose_L1MU15")->SetAddress(&(evt->HLT_mu20_iloose_L1MU15));
+   b->GetLeaf("HLT_mu24_iloose_L1MU15")->SetAddress(&(evt->HLT_mu24_iloose_L1MU15));
+   b->GetLeaf("HLT_mu24_imedium")->SetAddress(&(evt->HLT_mu24_imedium));
+   b->GetLeaf("HLT_mu26_imedium")->SetAddress(&(evt->HLT_mu26_imedium));
+   b->GetLeaf("HLT_mu50")->SetAddress(&(evt->HLT_mu50));
+   b->GetLeaf("HLT_x700_pufit_wEFMu")->SetAddress(&(evt->HLT_x700_pufit_wEFMu));
+   b->GetLeaf("HLT_xe100")->SetAddress(&(evt->HLT_xe100));
+   b->GetLeaf("HLT_xe100_mht")->SetAddress(&(evt->HLT_xe100_mht));
+   b->GetLeaf("HLT_xe100_mht_wEFMu")->SetAddress(&(evt->HLT_xe100_mht_wEFMu));
+   b->GetLeaf("HLT_xe100_pueta")->SetAddress(&(evt->HLT_xe100_pueta));
+   b->GetLeaf("HLT_xe100_pueta_wEFMu")->SetAddress(&(evt->HLT_xe100_pueta_wEFMu));
+   b->GetLeaf("HLT_xe100_pufit")->SetAddress(&(evt->HLT_xe100_pufit));
+   b->GetLeaf("HLT_xe100_pufit_wEFMu")->SetAddress(&(evt->HLT_xe100_pufit_wEFMu));
+   b->GetLeaf("HLT_xe100_wEFMu")->SetAddress(&(evt->HLT_xe100_wEFMu));
+   b->GetLeaf("HLT_xe35")->SetAddress(&(evt->HLT_xe35));
+   b->GetLeaf("HLT_xe35_mht")->SetAddress(&(evt->HLT_xe35_mht));
+   b->GetLeaf("HLT_xe35_mht_wEFMu")->SetAddress(&(evt->HLT_xe35_mht_wEFMu));
+   b->GetLeaf("HLT_xe35_pueta")->SetAddress(&(evt->HLT_xe35_pueta));
+   b->GetLeaf("HLT_xe35_pueta_wEFMu")->SetAddress(&(evt->HLT_xe35_pueta_wEFMu));
+   b->GetLeaf("HLT_xe35_pufit")->SetAddress(&(evt->HLT_xe35_pufit));
+   b->GetLeaf("HLT_xe35_pufit_wEFMu")->SetAddress(&(evt->HLT_xe35_pufit_wEFMu));
+   b->GetLeaf("HLT_xe35_wEFMu")->SetAddress(&(evt->HLT_xe35_wEFMu));
+   b->GetLeaf("HLT_xe70")->SetAddress(&(evt->HLT_xe70));
+   b->GetLeaf("HLT_xe70_mht")->SetAddress(&(evt->HLT_xe70_mht));
+   b->GetLeaf("HLT_xe70_mht_wEFMu")->SetAddress(&(evt->HLT_xe70_mht_wEFMu));
+   b->GetLeaf("HLT_xe70_pueta")->SetAddress(&(evt->HLT_xe70_pueta));
+   b->GetLeaf("HLT_xe70_pueta_wEFMu")->SetAddress(&(evt->HLT_xe70_pueta_wEFMu));
+   b->GetLeaf("HLT_xe70_pufit")->SetAddress(&(evt->HLT_xe70_pufit));
+
+   //electrons
+   b->GetLeaf("NEl")->SetAddress(&(evt->NEl));
+   b->GetLeaf("El_eta")->SetAddress(&(evt->El_eta));
+   b->GetLeaf("El_phi")->SetAddress(&(evt->El_phi));
+   b->GetLeaf("El_pT")->SetAddress(&(evt->El_pT));
+   b->GetLeaf("El_E")->SetAddress(&(evt->El_E));
+   b->GetLeaf("El_charge")->SetAddress(&(evt->El_charge));
+   b->GetLeaf("El_sigd0")->SetAddress(&(evt->El_sigd0));
+   b->GetLeaf("El_z0pvtx")->SetAddress(&(evt->El_z0pvtx));
+   b->GetLeaf("El_d0pvtx")->SetAddress(&(evt->El_d0pvtx));
+   b->GetLeaf("El_SFwMedium")->SetAddress(&(evt->El_SFwMedium));
+   b->GetLeaf("El_SFwMediumLH")->SetAddress(&(evt->El_SFwMediumLH));
+   b->GetLeaf("El_SFwTight")->SetAddress(&(evt->El_SFwTight));
+   b->GetLeaf("El_SFwTightLH")->SetAddress(&(evt->El_SFwTightLH));
+   b->GetLeaf("El_isLooseLH")->SetAddress(&(evt->El_isLooseLH));
+   b->GetLeaf("El_isMediumLH")->SetAddress(&(evt->El_isMediumLH));
+   b->GetLeaf("El_isTightLH")->SetAddress(&(evt->El_isTightLH));
+   b->GetLeaf("El_isLoose")->SetAddress(&(evt->El_isLoose));
+   b->GetLeaf("El_isMedium")->SetAddress(&(evt->El_isMedium));
+   b->GetLeaf("El_isTight")->SetAddress(&(evt->El_isTight));
+   b->GetLeaf("El_ptcone20")->SetAddress(&(evt->El_ptcone20));
+   b->GetLeaf("El_ptcone30")->SetAddress(&(evt->El_ptcone30));
+   b->GetLeaf("El_ptcone40")->SetAddress(&(evt->El_ptcone40));
+   b->GetLeaf("El_ptvarcone20")->SetAddress(&(evt->El_ptvarcone20));
+   b->GetLeaf("El_ptvarcone30")->SetAddress(&(evt->El_ptvarcone30));
+   b->GetLeaf("El_ptvarcone40")->SetAddress(&(evt->El_ptvarcone40));
+   b->GetLeaf("El_topoetcone20")->SetAddress(&(evt->El_topoetcone20));
+   b->GetLeaf("El_topoetcone30")->SetAddress(&(evt->El_topoetcone30));
+   b->GetLeaf("El_topoetcone40")->SetAddress(&(evt->El_topoetcone40));
+   b->GetLeaf("El_passIsoVeryLooseTO")->SetAddress(&(evt->El_passIsoVeryLooseTO));
+   b->GetLeaf("El_passIsoVeryLoose")->SetAddress(&(evt->El_passIsoVeryLoose));
+   b->GetLeaf("El_passIsoLoose")->SetAddress(&(evt->El_passIsoLoose));
+   b->GetLeaf("El_passIsoTight")->SetAddress(&(evt->El_passIsoTight));
+   b->GetLeaf("El_passIsoGrad")->SetAddress(&(evt->El_passIsoGrad));
+   b->GetLeaf("El_passIsoGradCustom")->SetAddress(&(evt->El_passIsoGradCustom));
+   b->GetLeaf("El_passIsoGradLoose")->SetAddress(&(evt->El_passIsoGradLoose));
+
+   //muons
+   b->GetLeaf("NMu")->SetAddress(&(evt->NMu));
+   b->GetLeaf("Mu_eta")->SetAddress(&(evt->Mu_eta));
+   b->GetLeaf("Mu_phi")->SetAddress(&(evt->Mu_phi));
+   b->GetLeaf("Mu_pT")->SetAddress(&(evt->Mu_pT));
+   b->GetLeaf("Mu_SFw")->SetAddress(&(evt->Mu_SFw));
+   b->GetLeaf("Mu_charge")->SetAddress(&(evt->Mu_charge));
+   b->GetLeaf("Mu_d0pvtx")->SetAddress(&(evt->Mu_d0pvtx));
+   b->GetLeaf("Mu_sigd0")->SetAddress(&(evt->Mu_sigd0));
+   b->GetLeaf("Mu_z0pvtx")->SetAddress(&(evt->Mu_z0pvtx));
+   b->GetLeaf("Mu_isBad")->SetAddress(&(evt->Mu_isBad));
+   b->GetLeaf("Mu_isCosmic")->SetAddress(&(evt->Mu_isCosmic));
+   b->GetLeaf("Mu_ptcone20")->SetAddress(&(evt->Mu_ptcone20));
+   b->GetLeaf("Mu_ptcone30")->SetAddress(&(evt->Mu_ptcone30));
+   b->GetLeaf("Mu_ptcone40")->SetAddress(&(evt->Mu_ptcone40));
+   b->GetLeaf("Mu_ptvarcone20")->SetAddress(&(evt->Mu_ptvarcone20));
+   b->GetLeaf("Mu_ptvarcone30")->SetAddress(&(evt->Mu_ptvarcone30));
+   b->GetLeaf("Mu_ptvarcone40")->SetAddress(&(evt->Mu_ptvarcone40));
+   b->GetLeaf("Mu_topoetcone20")->SetAddress(&(evt->Mu_topoetcone20));
+   b->GetLeaf("Mu_topoetcone30")->SetAddress(&(evt->Mu_topoetcone30));
+   b->GetLeaf("Mu_topoetcone40")->SetAddress(&(evt->Mu_topoetcone40));
+   b->GetLeaf("Mu_passIsoVeryLooseTO")->SetAddress(&(evt->Mu_passIsoVeryLooseTO));
+   b->GetLeaf("Mu_passIsoVeryLoose")->SetAddress(&(evt->Mu_passIsoVeryLoose));
+   b->GetLeaf("Mu_passIsoLoose")->SetAddress(&(evt->Mu_passIsoLoose));
+   b->GetLeaf("Mu_passIsoTight")->SetAddress(&(evt->Mu_passIsoTight));
+   b->GetLeaf("Mu_passIsoGrad")->SetAddress(&(evt->Mu_passIsoGrad));
+   b->GetLeaf("Mu_passIsoGradCustom")->SetAddress(&(evt->Mu_passIsoGradCustom));
+   b->GetLeaf("Mu_passIsoGradLoose")->SetAddress(&(evt->Mu_passIsoGradLoose));
+
+
+   //jets
+   b->GetLeaf("NJet")->SetAddress(&(evt->NJet));
+   b->GetLeaf("Jet_eta")->SetAddress(&(evt->Jet_eta));
+   b->GetLeaf("Jet_phi")->SetAddress(&(evt->Jet_phi));
+   b->GetLeaf("Jet_pT")->SetAddress(&(evt->Jet_pT));
+   b->GetLeaf("Jet_E")->SetAddress(&(evt->Jet_E));
+   b->GetLeaf("Jet_quality")->SetAddress(&(evt->Jet_quality));
+   b->GetLeaf("Jet_JVF")->SetAddress(&(evt->Jet_JVF));
+   b->GetLeaf("Jet_JVT")->SetAddress(&(evt->Jet_JVT));
+   b->GetLeaf("Jet_MV2c20")->SetAddress(&(evt->Jet_MV2c20));
+   b->GetLeaf("Jet_SFw")->SetAddress(&(evt->Jet_SFw));
+   b->GetLeaf("Jet_nTrk")->SetAddress(&(evt->Jet_nTrk));
+
+   //Etmiss
+   b->GetLeaf("Etmiss_CST_Etx")->SetAddress(&(evt->Etmiss_CST_Etx));
+   b->GetLeaf("Etmiss_CST_Ety")->SetAddress(&(evt->Etmiss_CST_Ety));
+   b->GetLeaf("Etmiss_CST_Et")->SetAddress(&(evt->Etmiss_CST_Et));
+   b->GetLeaf("Etmiss_TST_Etx")->SetAddress(&(evt->Etmiss_TST_Etx));
+   b->GetLeaf("Etmiss_TST_Ety")->SetAddress(&(evt->Etmiss_TST_Ety));
+   b->GetLeaf("Etmiss_TST_Et")->SetAddress(&(evt->Etmiss_TST_Et));
+
+   //others
+   b->GetLeaf("PV_z")->SetAddress(&(evt->PV_z));
+
+  //now we need to loop through the list of leaves to assign them proper values.
+  TObjArray *ll = b->GetListOfLeaves();
+  Int_t n_leaves = ll->GetEntries();
+  TLeaf *l;
+  intptr_t offset;
+
+  for (int i = 0; i < n_leaves; i++) {
+    l = (TLeaf*) (ll->At(i));
+    offset = (intptr_t) (l->GetValuePointer()) - (intptr_t) (&evt);
+    l->SetOffset(offset);
+  }
+
+}

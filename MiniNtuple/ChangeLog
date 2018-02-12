@@ -1,0 +1,6 @@
+// Othmane Rifki
+// July 2015
+// Hello!
+
+svn co  svn+ssh://svn.cern.ch/reps/atlas-othrif/analysis/MiniNtuple/trunk MiniNtuple
+
