@@ -1,0 +1,5 @@
+commands used to manipulate output:
+
+
+cat RAW.log | grep "POST" -a10 -A8 > post.log
+cat cross_section.log | awk -F"GeV" '{print $1 $2}' | awk -F"±" '{print $1}' > xsection_gluino.log
