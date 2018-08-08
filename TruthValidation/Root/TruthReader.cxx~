@@ -67,13 +67,11 @@ EL::StatusCode TruthReader :: histInitialize ()
   // connected.
 
   // Acceptance
-  //  h_AcceptanceTot   = new TH1F("h_AcceptanceTot", "h_AcceptanceTot;SR;A", 8, 0, 8);
-  h_AcceptanceTot   = new TH1F("h_AcceptanceTot", "h_AcceptanceTot;SR;A", 3, 0, 3);
+  h_AcceptanceTot   = new TH1F("h_AcceptanceTot", "h_AcceptanceTot;SR;A", 8, 0, 8);
   h_AcceptanceTot->Sumw2();
   wk()->addOutput (h_AcceptanceTot);
 
-  //  h_Acceptance   = new TH1F("h_Acceptance", "h_Acceptance;SR;A", 8, 0, 8);
-  h_Acceptance   = new TH1F("h_Acceptance", "h_Acceptance;SR;A", 3, 0, 3);
+  h_Acceptance   = new TH1F("h_Acceptance", "h_Acceptance;SR;A", 8, 0, 8);
   h_Acceptance->Sumw2();
   wk()->addOutput (h_Acceptance);
 
@@ -259,31 +257,6 @@ EL::StatusCode TruthReader :: execute ()
   // Compute selection variable
   //--------------------------- 
 
-  // Check the 3LSS requirement
-  std::vector<xAOD::TruthParticle*> Lep;
-
-  for( int i = 0 ; i < (int)v_electron.size() ; i++ ) 
-	Lep.push_back(v_electron.at(i));
-  for( int j = 0 ; j < (int)v_muon.size() ; j++ ) 
-  	Lep.push_back(v_muon.at(j));
-
-  bool is3LSS = false;
-
-  int numLept = 0;
-  int chLept = 1;
-  for( int i = 0 ; i < (int)Lep.size() ; i++ ) {
-	numLept++;
-	chLept *= Lep.at(i)->charge();
-  }
-  
-  int N_lep = (int) Lep.size();
-  if( N_lep> 2)
-	  for (int i = 0; i < N_lep; i++) 
-		for (int j = i+1; j < N_lep; j++) 
-		  for (int k = j+1; k < N_lep; k++) 
-			if((Lep.at(i)->charge()*Lep.at(j)->charge())>0 && (Lep.at(i)->charge()*Lep.at(k)->charge())>0)
-			  is3LSS = true;
-
   // Check the SS/3L requirement
   bool isSS = false;
 
@@ -336,14 +309,62 @@ EL::StatusCode TruthReader :: execute ()
     // All SS/3L
 	h_AcceptanceTot->Fill(0.,mcWeight);
     
-	h_Acceptance->Fill(0.,mcWeight);
 	// >=1 bjet
 	if( N_bjet >= 1 )
-	h_Acceptance->Fill(1.,mcWeight);
+	  h_AcceptanceTot->Fill(1.,mcWeight);
 
 	// 3LSS
 	if( is3LSS )
 	  h_AcceptanceTot->Fill(2.,mcWeight);
+
+
+    // SRVLQ0
+    if( ht > 400. && ht < 700. &&
+	N_bjet == 1 &&
+	MET > 40. )
+      h_Acceptance->Fill(0.,mcWeight);
+
+    // SRVLQ1
+    if( ht > 400. && ht < 700. &&
+	N_bjet == 2 &&
+	MET > 40. )
+      h_Acceptance->Fill(1.,mcWeight);
+    
+    // SRVLQ2
+    if( ht > 400. && ht < 700. &&
+	N_bjet > 2 &&
+	MET > 40. )
+      h_Acceptance->Fill(2.,mcWeight);
+    
+    // SRVLQ3
+    if( ht > 700. &&
+	N_bjet == 1 &&
+	MET > 40. && MET < 100. )
+      h_Acceptance->Fill(3.,mcWeight);
+    
+    // SRVLQ4
+    if( ht > 700. &&
+	N_bjet == 1 &&
+	MET > 100. )
+      h_Acceptance->Fill(4.,mcWeight);
+
+    // SRVLQ5
+    if( ht > 700. &&
+	N_bjet == 2 &&
+	MET > 40. && MET < 100. )
+      h_Acceptance->Fill(5.,mcWeight);
+    
+    // SRVLQ6
+    if( ht > 700. &&
+	N_bjet == 2 &&
+	MET > 100. )
+      h_Acceptance->Fill(6.,mcWeight);
+
+    // SRVLQ7
+    if( ht > 700. &&
+	N_bjet > 2 &&
+	MET > 40. )
+      h_Acceptance->Fill(7.,mcWeight);
 
   }
 

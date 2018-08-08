@@ -14,8 +14,8 @@
 int main( int argc, char* argv[] ) {
 
   // Take the submit directory from the input if provided:
-  std::string submitDir = "/afs/cern.ch/work/s/sberlend/McGeneration/Rpv/Truth1Files/submitDir";
-  std::string inputSample = "/afs/cern.ch/work/s/sberlend/McGeneration/Rpv/Truth1Files/user.sberlend.MGPy8EG_A14N23LO_Rpv_lampp312_dd_msq1000_mgo1200.reco.v4_EXT0/";
+  std::string submitDir = "submitDir";
+  std::string inputSample = "../TruthSample/mc15_13TeV.410066.MadGraphPythia8EvtGen_A14NNPDF23LO_ttW_Np0.merge.DAOD_TRUTH1.e4111_p2514/";
 
   if( argc > 1 ) inputSample = argv[ 1 ];
   if( argc > 2 ) submitDir = argv[ 2 ];
@@ -36,9 +36,11 @@ int main( int argc, char* argv[] ) {
   // Create an EventLoop job:
   EL::Job job;
   job.sampleHandler( sh );
-  //job.options()->setDouble (EL::Job::optMaxEvents, 10);
+  // job.options()->setDouble (EL::Job::optMaxEvents, 1000000);
+  job.options()->setDouble (EL::Job::optMaxEvents, 670000);
+  // job.options()->setDouble (EL::Job::optSkipEvents, 500000);
 
-  // Add our analysis to the job:
+  // add our analysis to the job:
   TruthReader* aTruth = new TruthReader();
   job.algsAdd( aTruth );
 

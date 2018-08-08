@@ -14,42 +14,9 @@ class TruthReader : public EL::Algorithm
 
 private:
 
-  // Jet
-  TH1 *h_jetN; //!
-  TH1 *h_jetPt; //!
-  TH1 *h_jetE; //!
-  TH1 *h_jetEta; //!
-  TH1 *h_jetPhi; //!
-
-  // BJet
-  TH1 *h_bjetN; //!
-  TH1 *h_bjetPt; //!
-  TH1 *h_bjetE; //!
-  TH1 *h_bjetEta; //!
-  TH1 *h_bjetPhi; //!
-
-  // Electron
-  TH1 *h_electronN; //!
-  TH1 *h_electronPt; //!
-  TH1 *h_electronE; //!
-  TH1 *h_electronEta; //!
-  TH1 *h_electronPhi; //!
-  TH1 *h_electronQ; //!
-
-  // Muon
-  TH1 *h_muonN; //!
-  TH1 *h_muonPt; //!
-  TH1 *h_muonE; //!
-  TH1 *h_muonEta; //!
-  TH1 *h_muonPhi; //!
-  TH1 *h_muonQ; //!
-
-  // Global Variable
-  TH1 *h_HT; //!
-  TH1 *h_meff; //!
-  TH1 *h_met; //!
-  TH1 *h_metPhi; //!
-
+  TH1 *h_AcceptanceTot; //!
+  TH1 *h_Acceptance; //!
+  TH1 *h_Norm; //!
 
 public:
   // float cutValue;
